@@ -1,0 +1,14 @@
+node_modules/
+.env
+dist/
+dist-ssr/
+*.local
+.DS_Store
+.npm/
+
+# Supabase Local
+supabase/.temp/
+supabase/.branches/
+supabase/.dump.sql
+supabase/migrations/
+*.sql

@@ -1,0 +1,111 @@
+﻿src/components/admin/AdminDashboard.tsx(5,39): error TS6133: 'Clock' is declared but its value is never read.
+src/components/admin/AdminDashboard.tsx(6,3): error TS6133: 'AlertCircle' is declared but its value is never read.
+src/components/admin/AdminDashboard.tsx(6,16): error TS6133: 'ChevronRight' is declared but its value is never read.
+src/components/admin/AdminDashboard.tsx(14,1): error TS6133: 'cn' is declared but its value is never read.
+src/components/admin/AdminDashboard.tsx(20,10): error TS6133: 'recentBookings' is declared but its value is never read.
+src/components/admin/AdminDashboard.tsx(20,26): error TS6133: 'setRecentBookings' is declared but its value is never read.
+src/components/admin/Analytics.tsx(4,3): error TS6133: 'TrendingUp' is declared but its value is never read.
+src/components/admin/Analytics.tsx(5,3): error TS6133: 'BarChart3' is declared but its value is never read.
+src/components/admin/Analytics.tsx(5,24): error TS6133: 'ArrowUpRight' is declared but its value is never read.
+src/components/admin/Analytics.tsx(5,38): error TS6133: 'ArrowDownRight' is declared but its value is never read.
+src/components/admin/Analytics.tsx(8,1): error TS6133: 'Badge' is declared but its value is never read.
+src/components/admin/Analytics.tsx(41,9): error TS6133: 'minVal' is declared but its value is never read.
+src/components/admin/BookingOversight.tsx(45,37): error TS2367: This comparison appears to be unintentional because the types 'BookingStatus' and '"completed"' have no overlap.
+src/components/admin/BookingOversight.tsx(46,35): error TS2367: This comparison appears to be unintentional because the types 'BookingStatus' and '"booked"' have no overlap.
+src/components/admin/BookingOversight.tsx(47,38): error TS2367: This comparison appears to be unintentional because the types 'BookingStatus' and '"testing"' have no overlap.
+src/components/admin/BookingOversight.tsx(47,64): error TS2367: This comparison appears to be unintentional because the types 'BookingStatus' and '"sample-collected"' have no overlap.
+src/components/admin/BookingOversight.tsx(48,39): error TS2367: This comparison appears to be unintentional because the types 'BookingStatus' and '"report-ready"' have no overlap.
+src/components/admin/DoctorApproval.tsx(4,20): error TS6133: 'Star' is declared but its value is never read.
+src/components/admin/DoctorApproval.tsx(6,5): error TS6133: 'FileText' is declared but its value is never read.
+src/components/admin/LabApproval.tsx(4,37): error TS6133: 'Star' is declared but its value is never read.
+src/components/admin/LabApproval.tsx(6,3): error TS6133: 'FileText' is declared but its value is never read.
+src/components/admin/LabApproval.tsx(6,13): error TS6133: 'Award' is declared but its value is never read.
+src/components/admin/UserManagement.tsx(28,3): error TS2561: Object literal may only specify known properties, but 'PATIENT' does not exist in type 'Record<UserRole | "ADMIN", string>'. Did you mean to write 'patient'?
+src/components/admin/UserManagement.tsx(87,33): error TS2367: This comparison appears to be unintentional because the types 'UserRole' and '"PATIENT"' have no overlap.
+src/components/admin/UserManagement.tsx(88,29): error TS2367: This comparison appears to be unintentional because the types 'UserRole' and '"LAB"' have no overlap.
+src/components/admin/UserManagement.tsx(89,31): error TS2367: This comparison appears to be unintentional because the types 'UserRole' and '"ADMIN"' have no overlap.
+src/components/AIDefenseEngine.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/BentoGridCanvas.tsx(17,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/CloudFabric.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/FinalCTA.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/GlobalAttackGlobe.tsx(2,34): error TS2307: Cannot find module '@react-three/fiber' or its corresponding type declarations.
+src/components/GlobalAttackGlobe.tsx(3,38): error TS2307: Cannot find module '@react-three/drei' or its corresponding type declarations.
+src/components/GlobalAttackGlobe.tsx(4,24): error TS7016: Could not find a declaration file for module 'three'. 'C:/Users/sules/node_modules/three/build/three.module.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/three` if it exists or add a new declaration (.d.ts) file containing `declare module 'three';`
+src/components/GlobalAttackGlobe.tsx(5,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/GlobalAttackGlobe.tsx(35,13): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/components/GlobalAttackGlobe.tsx(45,5): error TS2339: Property 'group' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(47,7): error TS2339: Property 'mesh' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(50,7): error TS2339: Property 'mesh' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(51,9): error TS2339: Property 'sphereGeometry' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(52,9): error TS2339: Property 'meshBasicMaterial' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(53,7): error TS2339: Property 'mesh' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(56,7): error TS2339: Property 'mesh' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(57,9): error TS2339: Property 'sphereGeometry' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(58,9): error TS2339: Property 'meshBasicMaterial' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(63,7): error TS2339: Property 'mesh' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(64,5): error TS2339: Property 'group' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(111,5): error TS2339: Property 'group' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(119,11): error TS2339: Property 'primitive' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(126,5): error TS2339: Property 'group' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(150,5): error TS2339: Property 'group' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(152,9): error TS2339: Property 'mesh' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(153,11): error TS2339: Property 'sphereGeometry' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(154,11): error TS2339: Property 'meshBasicMaterial' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(159,9): error TS2339: Property 'mesh' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(161,5): error TS2339: Property 'group' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(171,7): error TS2339: Property 'ambientLight' does not exist on type 'JSX.IntrinsicElements'.
+src/components/GlobalAttackGlobe.tsx(172,7): error TS2339: Property 'pointLight' does not exist on type 'JSX.IntrinsicElements'.
+src/components/HUDHeader.tsx(3,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/IdentityShield.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/lab/LabProfile.tsx(9,36): error TS6133: 'Phone' is declared but its value is never read.
+src/components/lab/ManageTechnicians.tsx(8,57): error TS6133: 'Trash2' is declared but its value is never read.
+src/components/lab/SampleWorkflow.tsx(64,5): error TS2367: This comparison appears to be unintentional because the types 'BookingStatus' and '"completed"' have no overlap.
+src/components/lab/SampleWorkflow.tsx(64,33): error TS2367: This comparison appears to be unintentional because the types 'BookingStatus' and '"cancelled"' have no overlap.
+src/components/lab/UploadReport.tsx(35,5): error TS2367: This comparison appears to be unintentional because the types 'BookingStatus' and '"testing"' have no overlap.
+src/components/lab/UploadReport.tsx(35,31): error TS2367: This comparison appears to be unintentional because the types 'BookingStatus' and '"sample-collected"' have no overlap.
+src/components/LiveDefenseStream.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/Navigation.tsx(3,9): error TS6133: 'User' is declared but its value is never read.
+src/components/Navigation.tsx(26,25): error TS6133: 'setNotifications' is declared but its value is never read.
+src/components/NetworkMonitor.tsx(5,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/NeuralSidebar.tsx(19,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/patient/BrowseDoctors.tsx(4,28): error TS6133: 'CreditCard' is declared but its value is never read.
+src/components/patient/BrowseDoctors.tsx(131,41): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(132,54): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(142,83): error TS2339: Property 'workingHospital' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(192,53): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(193,66): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(202,100): error TS2339: Property 'qualification' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(209,99): error TS2339: Property 'experienceYears' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(213,99): error TS2339: Property 'workingHospital' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(217,49): error TS2339: Property 'bio' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(221,61): error TS2339: Property 'bio' does not exist on type 'DoctorProfile'.
+src/components/PhishingShield.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/PricingPlans.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/RansomwareGuard.tsx(5,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/ResponseProtocols.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/SeedData.tsx(4,20): error TS6133: 'labs' is declared but its value is never read.
+src/components/SOCCenter.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/SystemPulseLine.tsx(2,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/ThreatCommandPanel.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/context/AuthContext.tsx(3,1): error TS6133: 'mockUser' is declared but its value is never read.
+src/context/AuthContext.tsx(76,26): error TS6133: 'role' is declared but its value is never read.
+src/data/mockData.ts(19,3): error TS2741: Property 'labId' is missing in type '{ id: string; name: string; description: string; category: "blood"; price: number; turnaroundTime: string; parameters: string[]; image: string; }' but required in type 'LabTest'.
+src/data/mockData.ts(29,3): error TS2741: Property 'labId' is missing in type '{ id: string; name: string; description: string; category: "blood"; price: number; turnaroundTime: string; parameters: string[]; image: string; }' but required in type 'LabTest'.
+src/data/mockData.ts(39,3): error TS2741: Property 'labId' is missing in type '{ id: string; name: string; description: string; category: "blood"; price: number; turnaroundTime: string; parameters: string[]; image: string; }' but required in type 'LabTest'.
+src/data/mockData.ts(49,3): error TS2741: Property 'labId' is missing in type '{ id: string; name: string; description: string; category: "blood"; price: number; turnaroundTime: string; parameters: string[]; image: string; }' but required in type 'LabTest'.
+src/data/mockData.ts(59,3): error TS2741: Property 'labId' is missing in type '{ id: string; name: string; description: string; category: "blood"; price: number; turnaroundTime: string; parameters: string[]; image: string; }' but required in type 'LabTest'.
+src/data/mockData.ts(69,3): error TS2741: Property 'labId' is missing in type '{ id: string; name: string; description: string; category: "blood"; price: number; turnaroundTime: string; parameters: string[]; image: string; }' but required in type 'LabTest'.
+src/data/mockData.ts(79,3): error TS2741: Property 'labId' is missing in type '{ id: string; name: string; description: string; category: "urine"; price: number; turnaroundTime: string; parameters: string[]; image: string; }' but required in type 'LabTest'.
+src/data/mockData.ts(89,3): error TS2741: Property 'labId' is missing in type '{ id: string; name: string; description: string; category: "urine"; price: number; turnaroundTime: string; parameters: string[]; image: string; }' but required in type 'LabTest'.
+src/data/mockData.ts(99,3): error TS2741: Property 'labId' is missing in type '{ id: string; name: string; description: string; category: "imaging"; price: number; turnaroundTime: string; parameters: string[]; image: string; }' but required in type 'LabTest'.
+src/data/mockData.ts(109,3): error TS2741: Property 'labId' is missing in type '{ id: string; name: string; description: string; category: "imaging"; price: number; turnaroundTime: string; parameters: string[]; image: string; }' but required in type 'LabTest'.
+src/data/mockData.ts(119,3): error TS2741: Property 'labId' is missing in type '{ id: string; name: string; description: string; category: "health-package"; price: number; turnaroundTime: string; parameters: string[]; image: string; }' but required in type 'LabTest'.
+src/data/mockData.ts(129,3): error TS2741: Property 'labId' is missing in type '{ id: string; name: string; description: string; category: "health-package"; price: number; turnaroundTime: string; parameters: string[]; image: string; }' but required in type 'LabTest'.
+src/data/mockData.ts(203,5): error TS2322: Type '"completed"' is not assignable to type 'BookingStatus'.
+src/data/mockData.ts(220,5): error TS2820: Type '"report-ready"' is not assignable to type 'BookingStatus'. Did you mean '"REPORT_READY"'?
+src/data/mockData.ts(239,5): error TS2820: Type '"testing"' is not assignable to type 'BookingStatus'. Did you mean '"TESTING"'?
+src/data/mockData.ts(256,5): error TS2820: Type '"sample-collected"' is not assignable to type 'BookingStatus'. Did you mean '"SAMPLE_COLLECTED"'?
+src/data/mockData.ts(270,5): error TS2820: Type '"booked"' is not assignable to type 'BookingStatus'. Did you mean '"BOOKED"'?
+src/pages/Signup.tsx(3,1): error TS6133: 'supabase' is declared but its value is never read.
+src/pages/Signup.tsx(41,12): error TS6133: 'otpSent' is declared but its value is never read.
