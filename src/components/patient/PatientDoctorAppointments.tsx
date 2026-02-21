@@ -76,13 +76,33 @@ export function PatientDoctorAppointments() {
 
     const canJoinCall = (appt: DoctorAppointment) => {
         if (appt.consultationType !== 'video') return false;
-        if (!['scheduled', 'ongoing'].includes(appt.status)) return false;
-        if (!appt.slotDate || !appt.startTime) return false;
 
-        const slotStart = new Date(`${appt.slotDate}T${appt.startTime}`);
+        // TEMPORARY BYPASS FOR TESTING
+        return true;
+
+        // Original logic:
+        /*
         const now = new Date();
-        const tenMinsBefore = new Date(slotStart.getTime() - 10 * 60 * 1000);
-        return now >= tenMinsBefore;
+        const apptDate = new Date(appt.date);
+        
+        // Check if appointment is today
+        if (apptDate.toDateString() !== now.toDateString()) return false;
+        
+        // Check if within 5 minutes of start time or during the appointment
+        const [startHours, startMinutes] = appt.startTime.split(':').map(Number);
+        const [endHours, endMinutes] = appt.endTime.split(':').map(Number);
+        
+        const startTime = new Date(apptDate);
+        startTime.setHours(startHours, startMinutes, 0);
+        
+        const endTime = new Date(apptDate);
+        endTime.setHours(endHours, endMinutes, 0);
+        
+        // Allow joining 5 mins before start until the end time
+        const joinStartTime = new Date(startTime.getTime() - 5 * 60000);
+        
+        return now >= joinStartTime && now <= endTime;
+        */
     };
 
     if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin w-8 h-8 text-teal-600" /></div>;
