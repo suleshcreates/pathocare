@@ -2,7 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
+const emailjs = require('@emailjs/nodejs');
 
+const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = process.env.EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = process.env.EMAILJS_PUBLIC_KEY;
+const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY;
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -617,16 +622,32 @@ app.post('/api/bookings/notify', async (req, res) => {
             return res.json({ message: 'No email needed for this status' });
         }
 
-        // 4. Send Email
-        await transporter.sendMail({
-            from: `"PathoCare Notifications" <${process.env.SMTP_USER}>`,
-            to: patientEmail,
-            subject: subject,
-            html: htmlBody
-        });
+        // 4. Send Email via EmailJS Node.js wrapper
+        if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY || !EMAILJS_PRIVATE_KEY) {
+            console.error('EmailJS credentials missing from backend environment');
+            return res.status(500).json({ error: 'EmailJS not configured on server' });
+        }
 
-        console.log(`Email sent to ${patientEmail} for status ${status}`);
-        res.json({ success: true, message: 'Notification sent' });
+        try {
+            await emailjs.send(
+                EMAILJS_SERVICE_ID,
+                EMAILJS_TEMPLATE_ID,
+                {
+                    to_email: patientEmail,
+                    subject: subject,
+                    message: htmlBody
+                },
+                {
+                    publicKey: EMAILJS_PUBLIC_KEY,
+                    privateKey: EMAILJS_PRIVATE_KEY,
+                }
+            );
+            console.log(`Email sent to ${patientEmail} for status ${status}`);
+            res.json({ success: true, message: 'Notification sent' });
+        } catch (emailErr) {
+            console.error('EmailJS sending failed:', emailErr);
+            throw emailErr;
+        }
 
     } catch (error) {
         console.error('Notification error:', error);
