@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import {
-    Search, Phone, Star,
+    Search, Phone,
     CheckCircle2, XCircle, Clock,
-    FileText, Award, ExternalLink, Loader2, Stethoscope
+    Award, ExternalLink, Loader2, Stethoscope
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

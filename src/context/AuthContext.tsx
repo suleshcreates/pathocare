@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { User, UserRole } from '../types';
-import { currentUser as mockUser } from '@/data/mockData';
+
 import { supabase } from '@/lib/supabase';
 import type { Session, AuthChangeEvent } from '@supabase/supabase-js';
 
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
     };
 
-    const login = async (role: UserRole = 'patient') => {
+    const login = async (_role: UserRole = 'patient') => {
         // NOTE: Real login should be done via supabase.auth.signInWithPassword directly in the components.
         // This function is kept for interface compatibility but warns the developer.
         console.warn("AuthContext.login() is deprecated. Use supabase.auth.signInWithPassword() instead.");

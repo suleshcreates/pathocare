@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
-import { 
-  Beaker, CheckCircle2, User, FlaskConical, FileText, 
-  AlertCircle, Scan, QrCode, Clock 
+import {
+  Beaker, CheckCircle2, User, FlaskConical, FileText,
+  AlertCircle, Scan, QrCode, Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,35 +13,35 @@ import type { BookingStatus } from '@/types';
 import { cn } from '@/lib/utils';
 
 const workflowSteps = [
-  { 
-    id: 'booked', 
-    label: 'Booked', 
+  {
+    id: 'booked',
+    label: 'Booked',
     description: 'Appointment scheduled',
-    icon: CheckCircle2 
+    icon: CheckCircle2
   },
-  { 
-    id: 'technician-assigned', 
-    label: 'Technician Assigned', 
+  {
+    id: 'technician-assigned',
+    label: 'Technician Assigned',
     description: 'Staff allocated',
-    icon: User 
+    icon: User
   },
-  { 
-    id: 'sample-collected', 
-    label: 'Sample Collected', 
+  {
+    id: 'sample-collected',
+    label: 'Sample Collected',
     description: 'Sample received at lab',
-    icon: Beaker 
+    icon: Beaker
   },
-  { 
-    id: 'testing', 
-    label: 'Testing', 
+  {
+    id: 'testing',
+    label: 'Testing',
     description: 'Analysis in progress',
-    icon: FlaskConical 
+    icon: FlaskConical
   },
-  { 
-    id: 'report-ready', 
-    label: 'Report Ready', 
+  {
+    id: 'report-ready',
+    label: 'Report Ready',
     description: 'Results available',
-    icon: FileText 
+    icon: FileText
   },
 ];
 
@@ -60,8 +60,8 @@ export function SampleWorkflow() {
     }
   }, []);
 
-  const activeBookings = bookings.filter(b => 
-    b.status !== 'completed' && b.status !== 'cancelled'
+  const activeBookings = bookings.filter(b =>
+    b.status !== 'REPORT_READY' && b.status !== 'REJECTED'
   );
 
   const handleScan = () => {
@@ -101,7 +101,7 @@ export function SampleWorkflow() {
                 onChange={(e) => setScanningId(e.target.value)}
                 className="bg-white/20 border-white/30 text-white placeholder:text-white/60 w-full md:w-64"
               />
-              <Button 
+              <Button
                 onClick={handleScan}
                 className="bg-white text-indigo-600 hover:bg-indigo-50"
               >
@@ -128,13 +128,13 @@ export function SampleWorkflow() {
             <div className="relative">
               {/* Progress Line */}
               <div className="absolute top-8 left-0 right-0 h-1 bg-slate-200 rounded-full" />
-              <div 
+              <div
                 className="absolute top-8 left-0 h-1 bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full transition-all duration-500"
-                style={{ 
-                  width: `${(getCurrentStepIndex(selectedBooking.status) / (workflowSteps.length - 1)) * 100}%` 
+                style={{
+                  width: `${(getCurrentStepIndex(selectedBooking.status) / (workflowSteps.length - 1)) * 100}%`
                 }}
               />
-              
+
               {/* Steps */}
               <div className="relative flex justify-between">
                 {workflowSteps.map((step, index) => {
@@ -142,13 +142,13 @@ export function SampleWorkflow() {
                   const isCompleted = index <= currentIndex;
                   const isCurrent = index === currentIndex;
                   const Icon = step.icon;
-                  
+
                   return (
                     <div key={step.id} className="flex flex-col items-center">
                       <div className={cn(
                         'w-16 h-16 rounded-full flex items-center justify-center border-4 transition-all duration-300 z-10',
-                        isCompleted 
-                          ? 'bg-indigo-500 border-indigo-500 text-white' 
+                        isCompleted
+                          ? 'bg-indigo-500 border-indigo-500 text-white'
                           : 'bg-white border-slate-300 text-slate-400',
                         isCurrent && 'ring-4 ring-indigo-500/30 scale-110'
                       )}>
@@ -192,9 +192,9 @@ export function SampleWorkflow() {
           {activeBookings.map((booking) => {
             const currentStep = getCurrentStepIndex(booking.status);
             const progress = ((currentStep + 1) / workflowSteps.length) * 100;
-            
+
             return (
-              <Card 
+              <Card
                 key={booking.id}
                 className={cn(
                   'cursor-pointer transition-all hover:shadow-lg',
@@ -212,14 +212,14 @@ export function SampleWorkflow() {
                       {booking.id}
                     </Badge>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-slate-500">Progress</span>
                       <span className="font-medium text-indigo-600">{Math.round(progress)}%</span>
                     </div>
                     <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full transition-all"
                         style={{ width: `${progress}%` }}
                       />

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import {
   Calendar, Clock, User, Phone, ChevronRight,
-  Download, Eye, Search, Home, Building2
+  Download, Eye, Search, Home, Building2, CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,10 +10,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StatusBadge } from '@/components/StatusBadge';
+import { BookingDetailsDialog } from './BookingDetailsDialog';
 import { bookingService } from '@/services/bookingService'; // Use service
+import { paymentService } from '@/services/paymentService';
 import { useAuth } from '@/context/AuthContext'; // Use auth
 import type { Booking, BookingStatus } from '@/types';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const statusFilters: { label: string; value: BookingStatus | 'all' }[] = [
   { label: 'All', value: 'all' },
@@ -30,7 +33,59 @@ export function Appointments() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookingStatus | 'all'>('all');
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
+  const [detailsBooking, setDetailsBooking] = useState<Booking | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [payingId, setPayingId] = useState<string | null>(null);
+
+  // Razorpay payment handler for lab bookings
+  const handleLabPayment = async (booking: Booking) => {
+    if (!user?.id) return;
+    setPayingId(booking.id);
+    try {
+      const price = (booking as any).price || 500;
+
+      // 1. Create order
+      const { order, key } = await paymentService.createOrder({
+        amount: price,
+        bookingId: booking.id,
+        type: 'lab'
+      });
+
+      // 2. Open Razorpay checkout
+      const paymentResult = await paymentService.openCheckout({
+        orderId: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        key,
+        bookingId: booking.id,
+        type: 'lab',
+        patientName: user.name || 'Patient',
+        patientEmail: user.email || '',
+        description: `Lab Test - ${booking.testName}`
+      });
+
+      // 3. Verify payment
+      await paymentService.verifyPayment({
+        ...paymentResult,
+        bookingId: booking.id,
+        type: 'lab',
+        amount: price
+      });
+
+      toast.success('Payment successful! Booking confirmed.');
+      // Refresh bookings
+      const data = await bookingService.getPatientBookings(user.id);
+      setBookings(data as Booking[]);
+    } catch (err: any) {
+      if (err.message === 'Payment cancelled by user') {
+        toast.info('Payment cancelled');
+      } else {
+        toast.error(err.message || 'Payment failed');
+      }
+    } finally {
+      setPayingId(null);
+    }
+  };
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -164,9 +219,20 @@ export function Appointments() {
                       </div>
 
                       {/* Status & Actions */}
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <StatusBadge status={booking.status} />
-                        <Button variant="outline" size="sm">
+                        {booking.status === 'PAYMENT_PENDING' && (
+                          <Button
+                            size="sm"
+                            className="bg-orange-500 hover:bg-orange-600 text-white"
+                            disabled={payingId === booking.id}
+                            onClick={() => handleLabPayment(booking)}
+                          >
+                            <CreditCard className="w-4 h-4 mr-1" />
+                            {payingId === booking.id ? 'Processing...' : 'Pay Now'}
+                          </Button>
+                        )}
+                        <Button variant="outline" size="sm" onClick={() => setDetailsBooking(booking)}>
                           <Eye className="w-4 h-4 mr-1" />
                           Details
                         </Button>
@@ -254,6 +320,10 @@ export function Appointments() {
                     </div>
                     <div className="flex items-center gap-3">
                       <StatusBadge status={booking.status} size="sm" />
+                      <Button variant="outline" size="sm" onClick={() => setDetailsBooking(booking)}>
+                        <Eye className="w-4 h-4 mr-1" />
+                        Details
+                      </Button>
                       {booking.reportUrl && (
                         <Button size="sm" className="bg-teal-500 hover:bg-teal-600">
                           <Download className="w-4 h-4 mr-1" />
@@ -278,6 +348,12 @@ export function Appointments() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <BookingDetailsDialog
+        booking={detailsBooking}
+        open={!!detailsBooking}
+        onClose={() => setDetailsBooking(null)}
+      />
     </div>
   );
 }

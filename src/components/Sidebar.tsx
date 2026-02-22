@@ -16,7 +16,7 @@ interface SidebarProps {
 
 interface NavItem {
   label: string;
-  icon: React.ElementType;
+  icon: any;
   href: string;
   badge?: number;
 }
@@ -50,7 +50,6 @@ const adminNavItems: NavItem[] = [
   { label: 'Labs', icon: Building2, href: '#labs', badge: 3 },
   { label: 'Doctors', icon: Users, href: '#doctors' },
   { label: 'Bookings', icon: Calendar, href: '#bookings' },
-  { label: 'Analytics', icon: BarChart3, href: '#analytics' },
   { label: 'Payouts', icon: Landmark, href: '#payouts' },
   { label: 'Settings', icon: Settings, href: '#settings' },
 ];

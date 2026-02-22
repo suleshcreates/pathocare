@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+
 import { Button } from '@/components/ui/button';
 import { FlaskConical, User, Building2, Stethoscope, ArrowLeft, Mail, Check, Loader2, Microscope } from 'lucide-react';
 import { otpService } from '@/services/otpService';
@@ -38,7 +38,7 @@ export function Signup() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [otp, setOtp] = useState('');
-    const [otpSent, setOtpSent] = useState(false);
+    const [, setOtpSent] = useState(false);
 
     const [formData, setFormData] = useState<FormData>({
         email: '',

@@ -134,7 +134,7 @@ export function BookingManagement() {
     // Generic status update for other actions
     let newStatus = '';
     switch (actionDialog.action) {
-      case 'accept': newStatus = 'BOOKED'; break;
+      case 'accept': newStatus = 'PAYMENT_PENDING'; break;
       case 'reject': newStatus = 'REJECTED'; break;
       case 'assign': newStatus = 'TECH_ASSIGNED'; break;
       case 'collect': newStatus = 'SAMPLE_COLLECTED'; break;
@@ -172,6 +172,10 @@ export function BookingManagement() {
         return [
           { label: 'Accept', icon: CheckCircle2, action: 'accept', color: 'bg-green-600' },
           { label: 'Reject', icon: CheckCircle2, action: 'reject', color: 'bg-red-500' },
+        ];
+      case 'PAYMENT_PENDING':
+        return [
+          { label: 'Waiting for Payment', icon: Clock, action: '', color: 'bg-orange-500' },
         ];
       case 'BOOKED':
         return [

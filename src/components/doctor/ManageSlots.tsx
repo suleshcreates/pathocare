@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, Plus, Trash2, Video, Building2, Loader2 } from 'lucide-react';
+import { Calendar, Clock, Plus, Trash2, Building2, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,7 +24,7 @@ export function ManageSlots() {
         slotDate: '',
         startTime: '09:00',
         endTime: '09:30',
-        consultationType: 'video' as ConsultationType
+        consultationType: 'hospital' as ConsultationType
     });
 
     const fetchSlots = async () => {
@@ -58,7 +58,7 @@ export function ManageSlots() {
             });
             toast.success('Slot created successfully!');
             setShowDialog(false);
-            setFormData({ slotDate: '', startTime: '09:00', endTime: '09:30', consultationType: 'video' });
+            setFormData({ slotDate: '', startTime: '09:00', endTime: '09:30', consultationType: 'hospital' });
             fetchSlots();
         } catch (err: any) {
             toast.error(err.message || 'Failed to create slot');
@@ -126,11 +126,7 @@ export function ManageSlots() {
                                             {slot.startTime} - {slot.endTime}
                                         </div>
                                         <Badge variant="outline" className="text-xs">
-                                            {slot.consultationType === 'video' ? (
-                                                <><Video className="w-3 h-3 mr-1 text-blue-500" /> Video</>
-                                            ) : (
-                                                <><Building2 className="w-3 h-3 mr-1 text-amber-500" /> Hospital</>
-                                            )}
+                                            <Building2 className="w-3 h-3 mr-1 text-amber-500" /> Hospital Visit
                                         </Badge>
                                         {slot.isBooked && (
                                             <Badge className="bg-green-100 text-green-700 text-xs">Booked</Badge>
@@ -183,31 +179,7 @@ export function ManageSlots() {
                                 />
                             </div>
                         </div>
-                        <div className="space-y-2">
-                            <Label>Consultation Type</Label>
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={() => setFormData({ ...formData, consultationType: 'video' })}
-                                    className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${formData.consultationType === 'video'
-                                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                            : 'border-slate-200 text-slate-600 hover:border-slate-300'
-                                        }`}
-                                >
-                                    <Video className="w-5 h-5" />
-                                    Video Call
-                                </button>
-                                <button
-                                    onClick={() => setFormData({ ...formData, consultationType: 'hospital' })}
-                                    className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${formData.consultationType === 'hospital'
-                                            ? 'border-amber-500 bg-amber-50 text-amber-700'
-                                            : 'border-slate-200 text-slate-600 hover:border-slate-300'
-                                        }`}
-                                >
-                                    <Building2 className="w-5 h-5" />
-                                    Hospital
-                                </button>
-                            </div>
-                        </div>
+
                         <div className="flex gap-3 pt-2">
                             <Button variant="outline" className="flex-1" onClick={() => setShowDialog(false)}>Cancel</Button>
                             <Button className="flex-1 bg-purple-600 hover:bg-purple-700" onClick={handleCreate} disabled={creating}>

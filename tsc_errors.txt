@@ -27,6 +27,8 @@ src/components/admin/UserManagement.tsx(89,31): error TS2367: This comparison ap
 src/components/AIDefenseEngine.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
 src/components/BentoGridCanvas.tsx(17,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
 src/components/CloudFabric.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/doctor/DoctorAppointments.tsx(91,17): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
 src/components/FinalCTA.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
 src/components/GlobalAttackGlobe.tsx(2,34): error TS2307: Cannot find module '@react-three/fiber' or its corresponding type declarations.
 src/components/GlobalAttackGlobe.tsx(3,38): error TS2307: Cannot find module '@react-three/drei' or its corresponding type declarations.
@@ -69,17 +71,22 @@ src/components/Navigation.tsx(3,9): error TS6133: 'User' is declared but its val
 src/components/Navigation.tsx(26,25): error TS6133: 'setNotifications' is declared but its value is never read.
 src/components/NetworkMonitor.tsx(5,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
 src/components/NeuralSidebar.tsx(19,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
+src/components/patient/BrowseDoctors.tsx(3,19): error TS6133: 'Video' is declared but its value is never read.
 src/components/patient/BrowseDoctors.tsx(4,28): error TS6133: 'CreditCard' is declared but its value is never read.
+src/components/patient/BrowseDoctors.tsx(30,12): error TS6133: 'slotsLoading' is declared but its value is never read.
 src/components/patient/BrowseDoctors.tsx(131,41): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
 src/components/patient/BrowseDoctors.tsx(132,54): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
 src/components/patient/BrowseDoctors.tsx(142,83): error TS2339: Property 'workingHospital' does not exist on type 'DoctorProfile'.
-src/components/patient/BrowseDoctors.tsx(192,53): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
-src/components/patient/BrowseDoctors.tsx(193,66): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
-src/components/patient/BrowseDoctors.tsx(202,100): error TS2339: Property 'qualification' does not exist on type 'DoctorProfile'.
-src/components/patient/BrowseDoctors.tsx(209,99): error TS2339: Property 'experienceYears' does not exist on type 'DoctorProfile'.
-src/components/patient/BrowseDoctors.tsx(213,99): error TS2339: Property 'workingHospital' does not exist on type 'DoctorProfile'.
-src/components/patient/BrowseDoctors.tsx(217,49): error TS2339: Property 'bio' does not exist on type 'DoctorProfile'.
-src/components/patient/BrowseDoctors.tsx(221,61): error TS2339: Property 'bio' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(190,53): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(191,66): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(200,100): error TS2339: Property 'qualification' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(207,99): error TS2339: Property 'experienceYears' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(211,99): error TS2339: Property 'workingHospital' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(215,49): error TS2339: Property 'bio' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(219,61): error TS2339: Property 'bio' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(261,108): error TS2345: Argument of type '"select"' is not assignable to parameter of type 'SetStateAction<"info" | "success" | "pay" | "slots">'.
+src/components/patient/PatientDoctorAppointments.tsx(61,17): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
 src/components/PhishingShield.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
 src/components/PricingPlans.tsx(4,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
 src/components/RansomwareGuard.tsx(5,10): error TS2614: Module '"../App"' has no exported member 'useBreach'. Did you mean to use 'import useBreach from "../App"' instead?
@@ -109,3 +116,4 @@ src/data/mockData.ts(256,5): error TS2820: Type '"sample-collected"' is not assi
 src/data/mockData.ts(270,5): error TS2820: Type '"booked"' is not assignable to type 'BookingStatus'. Did you mean '"BOOKED"'?
 src/pages/Signup.tsx(3,1): error TS6133: 'supabase' is declared but its value is never read.
 src/pages/Signup.tsx(41,12): error TS6133: 'otpSent' is declared but its value is never read.
+src/services/doctorService.ts(274,31): error TS2367: This comparison appears to be unintentional because the types '"hospital"' and '"video"' have no overlap.

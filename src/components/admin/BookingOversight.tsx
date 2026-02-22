@@ -1,26 +1,42 @@
 import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
-import { 
+import {
   Calendar, Search, User, Building2,
   ChevronLeft, ChevronRight, Eye, Download, MoreHorizontal,
-  CheckCircle2, Clock, Beaker, FileText 
+  CheckCircle2, Clock, Beaker, FileText, Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger 
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { StatusBadge } from '@/components/StatusBadge';
-import { bookings } from '@/data/mockData';
+import { adminService } from '@/services/adminService';
 import type { BookingStatus } from '@/types';
 import { cn } from '@/lib/utils';
 
 export function BookingOversight() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookingStatus | 'all'>('all');
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const data = await adminService.getBookings();
+        setBookings(data || []);
+      } catch (error) {
+        console.error("Failed to fetch bookings:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBookings();
+  }, []);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -34,19 +50,23 @@ export function BookingOversight() {
 
   const filteredBookings = bookings.filter(booking => {
     const matchesSearch = booking.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         booking.testName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         booking.labName.toLowerCase().includes(searchQuery.toLowerCase());
+      booking.testName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.labName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const stats = {
     total: bookings.length,
-    completed: bookings.filter(b => b.status === 'completed').length,
-    pending: bookings.filter(b => b.status === 'booked').length,
-    inProgress: bookings.filter(b => b.status === 'testing' || b.status === 'sample-collected').length,
-    reportReady: bookings.filter(b => b.status === 'report-ready').length
+    completed: bookings.filter(b => b.status === 'REPORT_READY').length,
+    pending: bookings.filter(b => b.status === 'BOOKED').length,
+    inProgress: bookings.filter(b => b.status === 'TESTING' || b.status === 'SAMPLE_COLLECTED').length,
+    reportReady: bookings.filter(b => b.status === 'REPORT_READY').length
   };
+
+  if (loading) {
+    return <div className="flex justify-center p-12"><Loader2 className="animate-spin w-8 h-8 text-amber-500" /></div>;
+  }
 
   return (
     <div ref={containerRef} className="space-y-6">

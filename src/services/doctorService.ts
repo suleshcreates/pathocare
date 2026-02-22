@@ -271,9 +271,7 @@ export const doctorService = {
         consultationType: ConsultationType;
     }): Promise<{ appointment: any; payment: any }> {
         // Generate secure tokens
-        const meetingRoomId = params.consultationType === 'video'
-            ? `pathocare-${crypto.randomUUID().slice(0, 8)}`
-            : null;
+        const meetingRoomId = null;
         const secureSessionToken = crypto.randomUUID();
 
         // 1. Update appointment to scheduled

@@ -1,11 +1,11 @@
 import { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import {
-  TrendingUp, Users, Calendar, DollarSign,
-  BarChart3, Activity, ArrowUpRight, ArrowDownRight, Loader2
+  Users, Calendar, DollarSign,
+  Activity, Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+
 import { adminService } from '@/services/adminService';
 import { cn } from '@/lib/utils';
 
@@ -38,7 +38,7 @@ function SimpleLineChart({ data }: { data: number[] }) {
   if (!data || data.length === 0) return <div className="h-48 flex items-center justify-center text-slate-500">No data available</div>;
 
   const maxVal = Math.max(...data) || 100;
-  const minVal = Math.min(...data); // Can be 0
+  Math.min(...data); // Can be 0
 
   return (
     <div className="h-48 flex items-end gap-1">

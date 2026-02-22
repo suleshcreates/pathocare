@@ -16,18 +16,14 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
 } from '@/components/ui/dialog';
 import { adminService } from '@/services/adminService';
-import type { User as UserType, UserRole } from '@/types';
+import type { User as UserType } from '@/types';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-const roleColors: Record<UserRole | 'ADMIN', string> = {
+const roleColors: Record<string, string> = {
   patient: 'bg-teal-100 text-teal-700',
   lab: 'bg-indigo-100 text-indigo-700',
   admin: 'bg-amber-100 text-amber-700',
-  // Handle uppercase from DB if standardizing
-  PATIENT: 'bg-teal-100 text-teal-700',
-  LAB: 'bg-indigo-100 text-indigo-700',
-  ADMIN: 'bg-amber-100 text-amber-700'
 };
 
 const roleLabels: Record<string, string> = {
@@ -84,15 +80,15 @@ export function UserManagement() {
 
   const stats = {
     total: users.length,
-    patients: users.filter(u => u.role === 'PATIENT' || u.role === 'patient').length,
-    labs: users.filter(u => u.role === 'LAB' || u.role === 'lab').length,
-    admins: users.filter(u => u.role === 'ADMIN' || u.role === 'admin').length
+    patients: users.filter(u => u.role === 'patient').length,
+    labs: users.filter(u => u.role === 'lab').length,
+    admins: users.filter(u => u.role === 'admin').length
   };
 
   const handleDeleteUser = async () => {
     setShowDeleteDialog(false);
     toast.info("Delete functionality coming soon");
-   
+
   };
 
   if (loading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;

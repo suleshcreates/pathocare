@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, Users, Video, Building2, TrendingUp, Loader2 } from 'lucide-react';
+import { Calendar, Clock, Users, Building2, TrendingUp, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/StatusBadge';
 import { useAuth } from '@/context/AuthContext';
@@ -118,8 +118,7 @@ export function DoctorDashboard() {
                                                     {appt.startTime || 'N/A'}
                                                 </span>
                                                 <span className="flex items-center gap-1">
-                                                    {appt.consultationType === 'video' ? <Video className="w-3 h-3 text-blue-500" /> : <Building2 className="w-3 h-3 text-amber-500" />}
-                                                    {appt.consultationType === 'video' ? 'Video' : 'Hospital'}
+                                                    <Building2 className="w-3 h-3 text-amber-500" /> Hospital
                                                 </span>
                                             </div>
                                         </div>

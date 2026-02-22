@@ -1,7 +1,7 @@
 import type { BookingStatus } from '@/types';
 import { cn } from '@/lib/utils';
 import {
-  CheckCircle2, FlaskConical, FileCheck, UserCheck, Loader2
+  CheckCircle2, FlaskConical, FileCheck, UserCheck, Loader2, CreditCard
 } from 'lucide-react';
 
 interface StatusBadgeProps {
@@ -12,7 +12,7 @@ interface StatusBadgeProps {
 
 const statusConfig: Record<BookingStatus, {
   label: string;
-  icon: React.ElementType;
+  icon: any;
   colors: string;
 }> = {
   'REQUESTED': {
@@ -22,8 +22,13 @@ const statusConfig: Record<BookingStatus, {
   },
   'REJECTED': {
     label: 'Rejected',
-    icon: CheckCircle2, // Using existing icon import or a generic one if XCircle removed
+    icon: CheckCircle2,
     colors: 'bg-red-100 text-red-700 border-red-200'
+  },
+  'PAYMENT_PENDING': {
+    label: 'Payment Pending',
+    icon: CreditCard,
+    colors: 'bg-orange-100 text-orange-700 border-orange-200'
   },
   'BOOKED': {
     label: 'Booked',

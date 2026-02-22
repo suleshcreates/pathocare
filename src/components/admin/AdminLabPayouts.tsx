@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
     IndianRupee, Activity, Search,
-    Download, RefreshCw, Loader2, Landmark, Check
+    Download, RefreshCw, Loader2, FlaskConical
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,18 +11,18 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-interface AdminDoctorPayment {
+interface AdminLabPayment {
     payment_id: string;
     amount: number;
     status: string;
     created_at: string;
-    doctor_id: string;
-    users_doctor: { full_name: string, email: string } | null;
+    lab_id: string;
+    users_lab: { full_name: string, email: string, user_metadata?: any } | null;
     users_patient: { full_name: string } | null;
 }
 
-export function AdminDoctorPayouts() {
-    const [payments, setPayments] = useState<AdminDoctorPayment[]>([]);
+export function AdminLabPayouts() {
+    const [payments, setPayments] = useState<AdminLabPayment[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -30,14 +30,15 @@ export function AdminDoctorPayouts() {
         setLoading(true);
         try {
             const { data: paymentsData, error: paymentsError } = await supabase
-                .from('doctor_payments')
-                .select('payment_id, amount, status, created_at, doctor_id, patient_id')
+                .from('lab_payments')
+                .select('payment_id, amount, status, created_at, lab_id, patient_id')
                 .order('created_at', { ascending: false });
 
             if (paymentsError) throw paymentsError;
 
+            // Fetch users based on the IDs
             const userIds = Array.from(new Set(
-                (paymentsData || []).flatMap(p => [p.doctor_id, p.patient_id]).filter(Boolean)
+                (paymentsData || []).flatMap(p => [p.lab_id, p.patient_id]).filter(Boolean)
             ));
 
             let usersData: any[] = [];
@@ -58,19 +59,20 @@ export function AdminDoctorPayouts() {
                 amount: p.amount,
                 status: p.status,
                 created_at: p.created_at,
-                doctor_id: p.doctor_id,
-                users_doctor: userMap.get(p.doctor_id) ? {
-                    full_name: userMap.get(p.doctor_id).full_name,
-                    email: userMap.get(p.doctor_id).email
+                lab_id: p.lab_id,
+                users_lab: userMap.get(p.lab_id) ? {
+                    full_name: userMap.get(p.lab_id).full_name,
+                    email: userMap.get(p.lab_id).email,
+                    user_metadata: userMap.get(p.lab_id).user_metadata
                 } : null,
                 users_patient: userMap.get(p.patient_id) ? {
                     full_name: userMap.get(p.patient_id).full_name
                 } : null
             }));
 
-            setPayments(mappedPayments as unknown as AdminDoctorPayment[]);
+            setPayments(mappedPayments as unknown as AdminLabPayment[]);
         } catch (err: any) {
-            console.error('Failed to load admin payouts', err);
+            console.error('Failed to load lab payouts', err);
             toast.error('Failed to load transaction database');
         } finally {
             setLoading(false);
@@ -80,7 +82,7 @@ export function AdminDoctorPayouts() {
     const handleMarkPaid = async (paymentId: string) => {
         try {
             const { error } = await supabase
-                .from('doctor_payments')
+                .from('lab_payments')
                 .update({ status: 'paid' })
                 .eq('payment_id', paymentId);
 
@@ -94,17 +96,17 @@ export function AdminDoctorPayouts() {
         }
     };
 
-    const handleSettleAll = async (doctorId: string) => {
+    const handleSettleAll = async (labId: string) => {
         try {
             const { error } = await supabase
-                .from('doctor_payments')
+                .from('lab_payments')
                 .update({ status: 'paid' })
-                .eq('doctor_id', doctorId)
+                .eq('lab_id', labId)
                 .eq('status', 'pending');
 
             if (error) throw error;
 
-            toast.success("All pending payments for doctor marked as settled!");
+            toast.success("All pending payments for laboratory marked as settled!");
             fetchAllPayments();
         } catch (error) {
             console.error("Error settling payments:", error);
@@ -119,28 +121,29 @@ export function AdminDoctorPayouts() {
     const totalSystemRevenue = payments.filter(p => p.status === 'paid').reduce((sum, p) => sum + Number(p.amount), 0);
     const completedTransactions = payments.filter(p => p.status === 'paid').length;
 
+    // Filter by lab name or email
     const filteredPayments = payments.filter(p => {
-        const docName = p.users_doctor?.full_name?.toLowerCase() || '';
-        const docEmail = p.users_doctor?.email?.toLowerCase() || '';
-        const patName = p.users_patient?.full_name?.toLowerCase() || '';
+        const labName = (p.users_lab?.full_name || '').toLowerCase();
+        const labEmail = (p.users_lab?.email || '').toLowerCase();
+        const patName = (p.users_patient?.full_name || '').toLowerCase();
         const term = searchTerm.toLowerCase();
-        return docName.includes(term) || docEmail.includes(term) || patName.includes(term);
+        return labName.includes(term) || labEmail.includes(term) || patName.includes(term);
     });
 
-    // Group by doctor for aggregate view
-    const statsByDoctor = new Map<string, { doctorId: string, doctorName: string, email: string, revenue: number, pending: number, consultations: number }>();
+    // Group by lab for aggregate view
+    const statsByLab = new Map<string, { labId: string, labName: string, email: string, revenue: number, pending: number, bookings: number }>();
 
     filteredPayments.forEach(p => {
-        const docId = p.doctor_id || p.users_doctor?.email || 'unknown'; // Using ID or email as unique fallback
-        const doctorName = p.users_doctor?.full_name || 'Unknown Doctor';
-        const email = p.users_doctor?.email || '';
+        const labId = p.lab_id || p.users_lab?.email || 'unknown'; // Using ID or email as unique fallback
+        const labName = p.users_lab?.full_name || 'Unknown Lab';
+        const email = p.users_lab?.email || '';
 
-        if (!statsByDoctor.has(docId)) {
-            statsByDoctor.set(docId, { doctorId: docId, doctorName, email, revenue: 0, pending: 0, consultations: 0 });
+        if (!statsByLab.has(labId)) {
+            statsByLab.set(labId, { labId, labName, email, revenue: 0, pending: 0, bookings: 0 });
         }
 
-        const stats = statsByDoctor.get(docId)!;
-        stats.consultations += 1;
+        const stats = statsByLab.get(labId)!;
+        stats.bookings += 1;
 
         if (p.status === 'paid') {
             stats.revenue += Number(p.amount);
@@ -149,23 +152,23 @@ export function AdminDoctorPayouts() {
         }
     });
 
-    const doctorAggregates = Array.from(statsByDoctor.values()).sort((a, b) => b.revenue - a.revenue);
+    const labAggregates = Array.from(statsByLab.values()).sort((a, b) => b.revenue - a.revenue);
 
     return (
         <div className="space-y-6 text-slate-800 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold flex items-center">
-                        <Landmark className="w-6 h-6 mr-2 text-indigo-600" />
-                        Platform Payouts (Doctors)
+                        <FlaskConical className="w-6 h-6 mr-2 text-teal-600" />
+                        Platform Payouts (Labs)
                     </h1>
-                    <p className="text-slate-500 mt-1">Monitor all consultation payments and doctor earnings</p>
+                    <p className="text-slate-500 mt-1">Monitor all lab test payments and laboratory earnings</p>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={fetchAllPayments} disabled={loading}>
                         <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} /> Refresh
                     </Button>
-                    <Button className="bg-indigo-600 hover:bg-indigo-700">
+                    <Button className="bg-teal-600 hover:bg-teal-700 text-white">
                         <Download className="w-4 h-4 mr-2" /> Export CSV
                     </Button>
                 </div>
@@ -176,39 +179,39 @@ export function AdminDoctorPayouts() {
                     <CardContent className="p-6">
                         <div className="flex justify-between items-start">
                             <div>
-                                <p className="text-slate-500 mb-1">Total System Revenue (Doctors)</p>
+                                <p className="text-slate-500 mb-1">Total System Revenue (Labs)</p>
                                 <h2 className="text-3xl font-bold flex items-center text-slate-800">
                                     <IndianRupee className="w-6 h-6 mr-1" />
                                     {totalSystemRevenue.toFixed(2)}
                                 </h2>
                             </div>
-                            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                                <Activity className="w-6 h-6 text-indigo-600" />
+                            <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
+                                <Activity className="w-6 h-6 text-teal-600" />
                             </div>
                         </div>
                         <div className="mt-4 flex items-center text-sm text-slate-500">
-                            Based on {completedTransactions} paid consultations
+                            Based on {completedTransactions} paid lab tests
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Tabs defaultValue="doctors" className="w-full mt-6">
+            <Tabs defaultValue="labs" className="w-full mt-6">
                 <TabsList className="grid w-full max-w-sm grid-cols-2 mb-6">
-                    <TabsTrigger value="doctors">By Doctor</TabsTrigger>
+                    <TabsTrigger value="labs">By Laboratory</TabsTrigger>
                     <TabsTrigger value="transactions">All Transactions</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="doctors">
+                <TabsContent value="labs">
                     <Card className="shadow-md border-slate-200">
                         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50 border-b border-slate-100 pb-4 gap-4">
                             <CardTitle className="text-lg font-semibold text-slate-700">
-                                Doctor Performance
+                                Laboratory Performance
                             </CardTitle>
                             <div className="relative w-full sm:w-64">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <Input
-                                    placeholder="Search doctor..."
+                                    placeholder="Search lab..."
                                     className="pl-9 h-9"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -220,55 +223,55 @@ export function AdminDoctorPayouts() {
                                 <table className="w-full text-sm text-left">
                                     <thead className="text-xs text-slate-500 bg-slate-50/50 uppercase border-b border-slate-100">
                                         <tr>
-                                            <th className="px-6 py-4 font-medium">Doctor</th>
-                                            <th className="px-6 py-4 font-medium text-center">Consultations</th>
+                                            <th className="px-6 py-4 font-medium">Laboratory</th>
+                                            <th className="px-6 py-4 font-medium text-center">Total Bookings</th>
                                             <th className="px-6 py-4 font-medium text-right">Pending Payouts</th>
                                             <th className="px-6 py-4 font-medium text-right">Settled Revenue</th>
                                             <th className="px-6 py-4 font-medium text-right">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {loading && doctorAggregates.length === 0 ? (
+                                        {loading && labAggregates.length === 0 ? (
                                             <tr>
-                                                <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
-                                                    <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto mb-2" />
+                                                <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                                                    <Loader2 className="w-8 h-8 animate-spin text-teal-600 mx-auto mb-2" />
                                                     Loading data...
                                                 </td>
                                             </tr>
-                                        ) : doctorAggregates.length === 0 ? (
+                                        ) : labAggregates.length === 0 ? (
                                             <tr>
-                                                <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
-                                                    No doctor data found.
+                                                <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
+                                                    No laboratory data found.
                                                 </td>
                                             </tr>
                                         ) : (
-                                            doctorAggregates.map((doc, idx) => (
+                                            labAggregates.map((lab, idx) => (
                                                 <tr key={idx} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                                     <td className="px-6 py-4">
-                                                        <div className="font-medium text-indigo-700">Dr. {doc.doctorName}</div>
-                                                        <div className="text-xs text-slate-500">{doc.email}</div>
+                                                        <div className="font-medium text-teal-700">{lab.labName}</div>
+                                                        <div className="text-xs text-slate-500">{lab.email}</div>
                                                     </td>
                                                     <td className="px-6 py-4 text-center font-medium text-slate-700">
-                                                        {doc.consultations}
+                                                        {lab.bookings}
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="font-medium flex items-center justify-end text-amber-600">
                                                             <IndianRupee className="w-3.5 h-3.5 mr-0.5" />
-                                                            {doc.pending.toFixed(2)}
+                                                            {lab.pending.toFixed(2)}
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="font-semibold flex items-center justify-end text-emerald-600">
                                                             <IndianRupee className="w-3.5 h-3.5 mr-0.5" />
-                                                            {doc.revenue.toFixed(2)}
+                                                            {lab.revenue.toFixed(2)}
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
-                                                        {doc.pending > 0 && (
+                                                        {lab.pending > 0 && (
                                                             <Button
                                                                 size="sm"
-                                                                className="h-8 bg-indigo-600 hover:bg-indigo-700 text-white"
-                                                                onClick={() => handleSettleAll(doc.doctorId)}
+                                                                className="h-8 bg-teal-600 hover:bg-teal-700 text-white"
+                                                                onClick={() => handleSettleAll(lab.labId)}
                                                             >
                                                                 <Check className="w-4 h-4 mr-1" /> Settle All
                                                             </Button>
@@ -293,7 +296,7 @@ export function AdminDoctorPayouts() {
                             <div className="relative w-full sm:w-64">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <Input
-                                    placeholder="Search doctor or patient..."
+                                    placeholder="Search lab or patient..."
                                     className="pl-9 h-9"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -307,7 +310,7 @@ export function AdminDoctorPayouts() {
                                         <tr>
                                             <th className="px-6 py-4 font-medium">Date</th>
                                             <th className="px-6 py-4 font-medium">Transaction ID</th>
-                                            <th className="px-6 py-4 font-medium">Doctor</th>
+                                            <th className="px-6 py-4 font-medium">Laboratory</th>
                                             <th className="px-6 py-4 font-medium">Paid By (Patient)</th>
                                             <th className="px-6 py-4 font-medium text-center">Status</th>
                                             <th className="px-6 py-4 font-medium text-right">Amount</th>
@@ -317,14 +320,14 @@ export function AdminDoctorPayouts() {
                                     <tbody>
                                         {loading && payments.length === 0 ? (
                                             <tr>
-                                                <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
-                                                    <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto mb-2" />
+                                                <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                                                    <Loader2 className="w-8 h-8 animate-spin text-teal-600 mx-auto mb-2" />
                                                     Loading transactions...
                                                 </td>
                                             </tr>
                                         ) : filteredPayments.length === 0 ? (
                                             <tr>
-                                                <td colSpan={7} className="px-6 py-8 text-center text-slate-500">
+                                                <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
                                                     No transactions found matching your search.
                                                 </td>
                                             </tr>
@@ -341,11 +344,11 @@ export function AdminDoctorPayouts() {
                                                         {payment.payment_id.split('-')[0]}...
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <div className="font-medium text-indigo-700">
-                                                            Dr. {payment.users_doctor?.full_name || 'Unknown'}
+                                                        <div className="font-medium text-teal-700">
+                                                            {payment.users_lab?.user_metadata?.lab_name || payment.users_lab?.full_name || 'Unknown Lab'}
                                                         </div>
                                                         <div className="text-xs text-slate-500">
-                                                            {payment.users_doctor?.email || ''}
+                                                            {payment.users_lab?.email || ''}
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4">
@@ -373,7 +376,7 @@ export function AdminDoctorPayouts() {
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
-                                                                className="h-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                                                                className="h-8 text-teal-600 hover:text-teal-700 hover:bg-teal-50"
                                                                 onClick={() => handleMarkPaid(payment.payment_id)}
                                                             >
                                                                 Settle
@@ -390,6 +393,6 @@ export function AdminDoctorPayouts() {
                     </Card>
                 </TabsContent>
             </Tabs>
-        </div>
+        </div >
     );
 }

@@ -11,7 +11,7 @@ import { testService } from '@/services/testService';
 import type { LabTest, TestCategory } from '@/types';
 import { cn } from '@/lib/utils';
 
-const categories: { id: TestCategory | 'all'; label: string; icon: React.ElementType }[] = [
+const categories: { id: TestCategory | 'all'; label: string; icon: any }[] = [
   { id: 'all', label: 'All', icon: FlaskConical },
   { id: 'blood', label: 'Blood', icon: Beaker },
   { id: 'urine', label: 'Urine', icon: Microscope },

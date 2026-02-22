@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { UserPlus, Phone, Users, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
+import { UserPlus, Phone, Users, CheckCircle2, XCircle } from 'lucide-react';
 import { labService } from '@/services/labService';
 import { toast } from 'sonner';
 

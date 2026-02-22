@@ -17,8 +17,7 @@ import { UserManagement } from '@/components/admin/UserManagement';
 import { LabApproval } from '@/components/admin/LabApproval';
 import { DoctorApproval } from '@/components/admin/DoctorApproval';
 import { BookingOversight } from '@/components/admin/BookingOversight';
-import { Analytics } from '@/components/admin/Analytics';
-import { AdminDoctorPayouts } from '@/components/admin/AdminDoctorPayouts';
+import { AdminEarnings } from '@/components/admin/AdminEarnings';
 import { SeedData } from '@/components/SeedData';
 import { ManageTests } from '@/components/lab/ManageTests';
 import { ManageSchedule } from '@/components/lab/ManageSchedule';
@@ -80,8 +79,7 @@ export function Dashboard() {
                 case 'labs': return <LabApproval />;
                 case 'doctors': return <DoctorApproval />;
                 case 'bookings': return <BookingOversight />;
-                case 'analytics': return <Analytics />;
-                case 'payouts': return <AdminDoctorPayouts />;
+                case 'payouts': return <AdminEarnings />;
                 case 'settings': return <AdminDashboard />;
                 default: return <AdminDashboard />;
             }

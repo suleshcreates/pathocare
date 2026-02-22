@@ -50,6 +50,7 @@ export interface Lab {
 export type BookingStatus =
   | 'REQUESTED'
   | 'REJECTED'
+  | 'PAYMENT_PENDING'
   | 'BOOKED'
   | 'TECH_ASSIGNED'
   | 'SAMPLE_COLLECTED'
@@ -59,6 +60,7 @@ export type BookingStatus =
 export const LAB_STATUS_LABELS: Record<BookingStatus, string> = {
   REQUESTED: 'New Request',
   REJECTED: 'Rejected',
+  PAYMENT_PENDING: 'Payment Pending',
   BOOKED: 'Booked',
   TECH_ASSIGNED: 'Technician Assigned',
   SAMPLE_COLLECTED: 'Sample Collected',
@@ -162,7 +164,7 @@ export interface Notification {
 // DOCTOR CONSULTATION MODULE TYPES
 // ==========================================
 
-export type ConsultationType = 'hospital' | 'video';
+export type ConsultationType = 'hospital';
 export type DoctorAppointmentStatus = 'pending_approval' | 'payment_pending' | 'scheduled' | 'ongoing' | 'completed' | 'cancelled' | 'rejected';
 export type PaymentStatus = 'pending' | 'paid' | 'failed';
 
@@ -176,6 +178,11 @@ export interface DoctorProfile {
   consultationFee?: number;
   avatar?: string;
   status?: string;
+  profileImg?: string;
+  workingHospital?: string;
+  qualification?: string;
+  experienceYears?: number;
+  bio?: string;
 }
 
 export interface DoctorSlot {

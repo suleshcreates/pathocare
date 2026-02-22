@@ -5,7 +5,7 @@ interface StatCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
-  icon: React.ElementType;
+  icon: any;
   trend?: {
     value: number;
     isPositive: boolean;
@@ -116,7 +116,7 @@ export function StatCard({
 interface MiniStatCardProps {
   label: string;
   value: string | number;
-  icon: React.ElementType;
+  icon: any;
   color?: 'teal' | 'indigo' | 'emerald' | 'amber';
 }
 

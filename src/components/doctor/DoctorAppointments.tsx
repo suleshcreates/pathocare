@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-    Calendar, Clock, Video, Building2, Users, MessageSquare,
+    Calendar, Clock, Building2, Users, MessageSquare,
     Loader2, CheckCircle2, XCircle, PlayCircle
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -88,7 +88,7 @@ export function DoctorAppointments() {
 
             await sendApprovalEmail({
                 patientEmail: appt.patientEmail || '',
-                patientName: appt.patientName,
+                patientName: appt.patientName || '',
                 doctorName: user?.name || 'Doctor',
                 date: dateStr,
                 time: timeStr
@@ -113,36 +113,7 @@ export function DoctorAppointments() {
         }
     };
 
-    const canJoinCall = (appt: DoctorAppointment) => {
-        if (appt.consultationType !== 'video') return false;
 
-        // TEMPORARY BYPASS FOR TESTING
-        return true;
-
-        // Original logic:
-        /*
-        const now = new Date();
-        const apptDate = new Date(appt.date);
-        
-        // Check if appointment is today
-        if (apptDate.toDateString() !== now.toDateString()) return false;
-        
-        // Check if within 15 minutes of start time or during the appointment
-        const [startHours, startMinutes] = appt.startTime.split(':').map(Number);
-        const [endHours, endMinutes] = appt.endTime.split(':').map(Number);
-        
-        const startTime = new Date(apptDate);
-        startTime.setHours(startHours, startMinutes, 0);
-        
-        const endTime = new Date(apptDate);
-        endTime.setHours(endHours, endMinutes, 0);
-        
-        // Allow joining 15 mins before start until the end time
-        const joinStartTime = new Date(startTime.getTime() - 15 * 60000);
-        
-        return now >= joinStartTime && now <= endTime;
-        */
-    };
 
     const filtered = filter === 'all' ? appointments : appointments.filter(a => a.status === filter);
 
@@ -209,11 +180,7 @@ export function DoctorAppointments() {
                                                     {appt.startTime || 'N/A'} - {appt.endTime || ''}
                                                 </span>
                                                 <Badge variant="outline" className="text-xs">
-                                                    {appt.consultationType === 'video' ? (
-                                                        <><Video className="w-3 h-3 mr-1 text-blue-500" /> Video</>
-                                                    ) : (
-                                                        <><Building2 className="w-3 h-3 mr-1 text-amber-500" /> Hospital</>
-                                                    )}
+                                                    <Building2 className="w-3 h-3 mr-1 text-amber-500" /> Hospital Visit
                                                 </Badge>
                                             </div>
                                         </div>
@@ -244,27 +211,15 @@ export function DoctorAppointments() {
                                         )}
                                         {appt.status === 'scheduled' && (
                                             <>
-                                                {appt.consultationType === 'video' && canJoinCall(appt) && (
-                                                    <Button
-                                                        size="sm"
-                                                        className="bg-blue-600 hover:bg-blue-700"
-                                                        onClick={async () => {
-                                                            await handleStatusChange(appt.appointmentId, 'ongoing');
-                                                            window.location.href = `/room/${appt.meetingRoomId}`;
-                                                        }}
-                                                    >
-                                                        <PlayCircle className="w-4 h-4 mr-1" /> Start Call
-                                                    </Button>
-                                                )}
-                                                {appt.consultationType === 'hospital' && (
-                                                    <Button
-                                                        size="sm"
-                                                        className="bg-green-600 hover:bg-green-700"
-                                                        onClick={() => handleStatusChange(appt.appointmentId, 'ongoing')}
-                                                    >
-                                                        <PlayCircle className="w-4 h-4 mr-1" /> Start
-                                                    </Button>
-                                                )}
+
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-green-600 hover:bg-green-700"
+                                                    onClick={() => handleStatusChange(appt.appointmentId, 'ongoing')}
+                                                >
+                                                    <PlayCircle className="w-4 h-4 mr-1" /> Start
+                                                </Button>
+
                                                 <Button
                                                     size="sm"
                                                     variant="outline"

@@ -182,7 +182,7 @@ export function DoctorEarnings() {
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 <Badge variant="outline" className="bg-slate-100 text-slate-600 font-normal">
-                                                    {payment.doctor_appointments?.consultation_type === 'video' ? 'Video' : 'Hospital'}
+                                                    Hospital
                                                 </Badge>
                                             </td>
                                             <td className="px-6 py-4 text-center">
@@ -208,6 +208,6 @@ export function DoctorEarnings() {
                     </div>
                 </CardContent>
             </Card>
-        </div>
+        </div >
     );
 }

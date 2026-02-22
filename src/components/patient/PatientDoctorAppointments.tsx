@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
-    Calendar, Clock, Video, Building2, User,
-    Loader2, CreditCard, PlayCircle, AlertCircle
+    Calendar, Clock, Building2, User,
+    Loader2, CreditCard, AlertCircle
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from '@/components/StatusBadge';
 import { useAuth } from '@/context/AuthContext';
 import { doctorService } from '@/services/doctorService';
+import { paymentService } from '@/services/paymentService';
 import { sendConfirmationEmail } from '@/services/emailService';
 import { toast } from 'sonner';
 import type { DoctorAppointment } from '@/types';
@@ -42,23 +43,42 @@ export function PatientDoctorAppointments() {
         if (!user?.id) return;
         setPaying(appt.appointmentId);
         try {
-            // In a real app, this would open a payment gateway. Here we simulate success.
-            await doctorService.processPayment({
-                appointmentId: appt.appointmentId,
-                patientId: user.id,
-                doctorId: appt.doctorId,
-                amount: 500, // Assuming a fixed amount for simplicity, or fetch from doctor
-                consultationType: appt.consultationType
+            // 1. Create Razorpay order via backend
+            const { order, key } = await paymentService.createOrder({
+                amount: 500,
+                bookingId: appt.appointmentId,
+                type: 'doctor'
             });
 
-            // Send confirmation email via EmailJS
+            // 2. Open Razorpay checkout modal
+            const paymentResult = await paymentService.openCheckout({
+                orderId: order.id,
+                amount: order.amount,
+                currency: order.currency,
+                key,
+                bookingId: appt.appointmentId,
+                type: 'doctor',
+                patientName: user.name || 'Patient',
+                patientEmail: user.email || '',
+                description: `Doctor Consultation - ${appt.doctorName || 'Doctor'}`
+            });
+
+            // 3. Verify payment on backend
+            await paymentService.verifyPayment({
+                ...paymentResult,
+                bookingId: appt.appointmentId,
+                type: 'doctor',
+                amount: 500
+            });
+
+            // 4. Send confirmation email
             const dateStr = appt.slotDate ? new Date(appt.slotDate).toLocaleDateString() : 'N/A';
             const timeStr = `${appt.startTime || 'N/A'} - ${appt.endTime || ''}`;
 
             await sendConfirmationEmail({
                 patientEmail: user.email || '',
                 patientName: user.name || 'Patient',
-                doctorName: appt.doctorName,
+                doctorName: appt.doctorName || 'Doctor',
                 date: dateStr,
                 time: timeStr,
                 consultationType: appt.consultationType,
@@ -68,43 +88,15 @@ export function PatientDoctorAppointments() {
             toast.success('Payment successful! Appointment confirmed.');
             fetchAppointments();
         } catch (err: any) {
-            toast.error(err.message || 'Payment failed');
+            if (err.message === 'Payment cancelled by user') {
+                toast.info('Payment cancelled');
+            } else {
+                toast.error(err.message || 'Payment failed');
+            }
         } finally {
             setPaying(null);
         }
     };
-
-    const canJoinCall = (appt: DoctorAppointment) => {
-        if (appt.consultationType !== 'video') return false;
-
-        // TEMPORARY BYPASS FOR TESTING
-        return true;
-
-        // Original logic:
-        /*
-        const now = new Date();
-        const apptDate = new Date(appt.date);
-        
-        // Check if appointment is today
-        if (apptDate.toDateString() !== now.toDateString()) return false;
-        
-        // Check if within 5 minutes of start time or during the appointment
-        const [startHours, startMinutes] = appt.startTime.split(':').map(Number);
-        const [endHours, endMinutes] = appt.endTime.split(':').map(Number);
-        
-        const startTime = new Date(apptDate);
-        startTime.setHours(startHours, startMinutes, 0);
-        
-        const endTime = new Date(apptDate);
-        endTime.setHours(endHours, endMinutes, 0);
-        
-        // Allow joining 5 mins before start until the end time
-        const joinStartTime = new Date(startTime.getTime() - 5 * 60000);
-        
-        return now >= joinStartTime && now <= endTime;
-        */
-    };
-
     if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin w-8 h-8 text-teal-600" /></div>;
 
     return (
@@ -153,7 +145,6 @@ export function PatientDoctorAppointments() {
                             appointments={appointments.filter(a => ['pending_approval', 'scheduled', 'ongoing'].includes(a.status))}
                             handlePayment={handlePayment}
                             paying={paying}
-                            canJoinCall={canJoinCall}
                             emptyMessage="No active appointments or requests."
                         />
                     </TabsContent>
@@ -163,7 +154,6 @@ export function PatientDoctorAppointments() {
                             appointments={appointments.filter(a => a.status === 'payment_pending')}
                             handlePayment={handlePayment}
                             paying={paying}
-                            canJoinCall={canJoinCall}
                             emptyMessage="No appointments awaiting payment."
                         />
                     </TabsContent>
@@ -173,7 +163,6 @@ export function PatientDoctorAppointments() {
                             appointments={appointments.filter(a => ['completed', 'cancelled', 'rejected'].includes(a.status))}
                             handlePayment={handlePayment}
                             paying={paying}
-                            canJoinCall={canJoinCall}
                             emptyMessage="No past appointments."
                         />
                     </TabsContent>
@@ -184,7 +173,7 @@ export function PatientDoctorAppointments() {
     );
 }
 
-function AppointmentList({ appointments, handlePayment, paying, canJoinCall, emptyMessage }: any) {
+function AppointmentList({ appointments, handlePayment, paying, emptyMessage }: any) {
     if (appointments.length === 0) {
         return (
             <div className="text-center py-12 bg-slate-50 rounded-xl border border-slate-100 shadow-inner">
@@ -218,11 +207,7 @@ function AppointmentList({ appointments, handlePayment, paying, canJoinCall, emp
                                             {appt.startTime || 'N/A'} - {appt.endTime || ''}
                                         </span>
                                         <Badge variant="outline" className="text-xs">
-                                            {appt.consultationType === 'video' ? (
-                                                <><Video className="w-3 h-3 mr-1 text-blue-500" /> Video</>
-                                            ) : (
-                                                <><Building2 className="w-3 h-3 mr-1 text-amber-500" /> Hospital</>
-                                            )}
+                                            <Building2 className="w-3 h-3 mr-1 text-amber-500" /> Hospital Visit
                                         </Badge>
                                     </div>
                                 </div>
@@ -243,19 +228,7 @@ function AppointmentList({ appointments, handlePayment, paying, canJoinCall, emp
                                     </Button>
                                 )}
 
-                                {appt.status === 'scheduled' && appt.consultationType === 'video' && canJoinCall(appt) && (
-                                    <Button
-                                        className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 shadow-sm"
-                                        onClick={() => window.location.href = `/room/${appt.meetingRoomId}`}
-                                    >
-                                        <PlayCircle className="w-4 h-4 mr-2" />
-                                        Join Video Call
-                                    </Button>
-                                )}
 
-                                {appt.status === 'scheduled' && appt.consultationType === 'video' && !canJoinCall(appt) && (
-                                    <p className="text-xs text-slate-500 text-center md:text-right">Call link will be active<br />10 mins before slot</p>
-                                )}
 
                                 {appt.status === 'pending_approval' && (
                                     <div className="flex items-center text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-100">

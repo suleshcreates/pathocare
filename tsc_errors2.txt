@@ -1,0 +1,47 @@
+﻿src/components/admin/AdminDashboard.tsx(13,36): error TS6196: 'Booking' is declared but never used.
+src/components/admin/DoctorApproval.tsx(4,20): error TS6133: 'Star' is declared but its value is never read.
+src/components/admin/DoctorApproval.tsx(6,5): error TS6133: 'FileText' is declared but its value is never read.
+src/components/admin/LabApproval.tsx(4,37): error TS6133: 'Star' is declared but its value is never read.
+src/components/admin/LabApproval.tsx(6,3): error TS6133: 'FileText' is declared but its value is never read.
+src/components/admin/LabApproval.tsx(6,13): error TS6133: 'Award' is declared but its value is never read.
+src/components/admin/UserManagement.tsx(28,3): error TS1117: An object literal cannot have multiple properties with the same name.
+src/components/admin/UserManagement.tsx(29,3): error TS2561: Object literal may only specify known properties, but 'LAB' does not exist in type 'Record<UserRole | "ADMIN", string>'. Did you mean to write 'lab'?
+src/components/AIDefenseEngine.tsx(14,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/BentoGridCanvas.tsx(44,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/CloudFabric.tsx(16,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/FinalCTA.tsx(7,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/GlobalAttackGlobe.tsx(167,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/GlobalAttackGlobe.tsx(201,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/GlobalAttackGlobe.tsx(201,32): error TS2339: Property 'threatLevel' does not exist on type 'Boolean'.
+src/components/HUDHeader.tsx(7,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/HUDHeader.tsx(7,32): error TS2339: Property 'threatLevel' does not exist on type 'Boolean'.
+src/components/IdentityShield.tsx(15,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/LiveDefenseStream.tsx(15,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/NetworkMonitor.tsx(15,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/NeuralSidebar.tsx(51,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/patient/BrowseDoctors.tsx(30,12): error TS6133: 'slotsLoading' is declared but its value is never read.
+src/components/patient/BrowseDoctors.tsx(131,41): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(132,54): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(142,83): error TS2339: Property 'workingHospital' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(190,53): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(191,66): error TS2339: Property 'profileImg' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(200,100): error TS2339: Property 'qualification' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(207,99): error TS2339: Property 'experienceYears' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(211,99): error TS2339: Property 'workingHospital' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(215,49): error TS2339: Property 'bio' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseDoctors.tsx(219,61): error TS2339: Property 'bio' does not exist on type 'DoctorProfile'.
+src/components/patient/BrowseTests.tsx(114,23): error TS2322: Type 'string' is not assignable to type 'never'.
+src/components/patient/PatientDoctorAppointments.tsx(61,17): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/components/PhishingShield.tsx(16,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/PricingPlans.tsx(71,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/RansomwareGuard.tsx(14,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/ResponseProtocols.tsx(15,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/Sidebar.tsx(187,23): error TS2322: Type 'string' is not assignable to type 'never'.
+src/components/SOCCenter.tsx(23,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/StatCard.tsx(84,17): error TS2322: Type 'string' is not assignable to type 'never'.
+src/components/StatCard.tsx(129,15): error TS2322: Type 'string' is not assignable to type 'never'.
+src/components/StatusBadge.tsx(84,15): error TS2322: Type 'string' is not assignable to type 'never'.
+src/components/StatusBadge.tsx(143,23): error TS2322: Type 'string' is not assignable to type 'never'.
+src/components/SystemPulseLine.tsx(5,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.
+src/components/ThreatCommandPanel.tsx(16,11): error TS2339: Property 'isSystemUnderAttack' does not exist on type 'Boolean'.

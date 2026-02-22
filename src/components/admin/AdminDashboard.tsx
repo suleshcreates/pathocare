@@ -2,22 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import {
   Users, Building2, Calendar,
-  DollarSign, Activity, CheckCircle2, Clock,
-  AlertCircle, ChevronRight, Loader2
+  DollarSign, Activity, CheckCircle2,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatCard } from '@/components/StatCard';
 import { Badge } from '@/components/ui/badge';
 import { adminService } from '@/services/adminService';
-import type { DashboardStats, Lab, Booking } from '@/types';
-import { cn } from '@/lib/utils';
-
+import type { DashboardStats, Lab } from '@/types';
 export function AdminDashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [pendingLabs, setPendingLabs] = useState<Lab[]>([]);
-  const [recentBookings, setRecentBookings] = useState<Booking[]>([]); // We might need to implement this in service too
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +27,7 @@ export function AdminDashboard() {
         ]);
         setStats(statsData);
         setPendingLabs(labsData);
-       
+
       } catch (error) {
         console.error("Failed to fetch admin stats:", error);
       } finally {
@@ -51,9 +49,9 @@ export function AdminDashboard() {
   }, [loading]);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
       notation: 'compact',
       maximumFractionDigits: 1
     }).format(value);

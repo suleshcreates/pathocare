@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import {
-  Building2, Search, MapPin, Phone, Star,
+  Building2, Search, MapPin, Phone,
   CheckCircle2, XCircle, Clock,
-  FileText, Award, ExternalLink, Loader2
+  ExternalLink, Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,9 @@ import { Badge } from '@/components/ui/badge';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { adminService } from '@/services/adminService';
 import type { Lab } from '@/types';
@@ -72,10 +75,18 @@ export function LabApproval() {
     }
   };
 
-  // Mock reject for now as we didn't implement it in service yet
   const handleReject = async () => {
-    setShowRejectDialog(false);
-    toast.info("Reject functionality coming soon");
+    if (!selectedLab) return;
+    try {
+      await adminService.rejectLab(selectedLab.id);
+      toast.success(`Lab ${selectedLab.name} rejected/suspended successfully`);
+      setShowRejectDialog(false);
+      // Refresh list
+      fetchLabs();
+    } catch (error) {
+      console.error("Failed to reject lab:", error);
+      toast.error("Failed to reject lab");
+    }
   };
 
   const pendingLabs = labs.filter(lab =>
@@ -150,10 +161,30 @@ export function LabApproval() {
                 </Button>
               </>
             ) : (
-              <Button size="sm" variant="outline" className="flex-1">
-                <ExternalLink className="w-4 h-4 mr-1" />
-                Manage
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-1" />
+                    Manage
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer"
+                    onClick={() => {
+                      setSelectedLab(lab);
+                      setShowRejectDialog(true);
+                    }}
+                  >
+                    <XCircle className="w-4 h-4 mr-2" />
+                    Suspend Lab
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
         </div>
@@ -260,21 +291,21 @@ export function LabApproval() {
       </Dialog>
 
       {/* Reject Dialog */}
+      {/* Reject/Suspend Dialog */}
       <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reject Lab Registration</DialogTitle>
+            <DialogTitle>Reject/Suspend Lab</DialogTitle>
             <DialogDescription>
-              Are you sure you want to reject {selectedLab?.name}? This action cannot be undone.
+              Are you sure you want to reject or suspend {selectedLab?.name}? They will no longer be able to accept bookings.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex gap-3 mt-4">
-            <Button variant="outline" className="flex-1" onClick={() => setShowRejectDialog(false)}>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button variant="outline" onClick={() => setShowRejectDialog(false)}>
               Cancel
             </Button>
-            <Button className="flex-1 bg-rose-500 hover:bg-rose-600" onClick={handleReject}>
-              <XCircle className="w-4 h-4 mr-2" />
-              Reject Lab
+            <Button variant="destructive" onClick={handleReject}>
+              Confirm Actions
             </Button>
           </div>
         </DialogContent>

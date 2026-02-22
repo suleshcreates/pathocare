@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  Bell, User, Menu, X, ChevronDown, FlaskConical, LogOut
+  Bell, Menu, X, ChevronDown, FlaskConical, LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,7 +23,7 @@ interface NavigationProps {
 export function Navigation({ isMobileMenuOpen, onToggleMobileMenu }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const { role, user, logout } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]); // Empty for now
+  const [notifications] = useState<Notification[]>([]); // Empty for now
 
   useEffect(() => {
     const handleScroll = () => {

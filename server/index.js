@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 const emailjs = require('@emailjs/nodejs');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 
 const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = process.env.EMAILJS_TEMPLATE_ID;
@@ -23,9 +25,19 @@ const supabase = supabaseUrl && supabaseServiceKey
     ? createClient(supabaseUrl, supabaseServiceKey)
     : null;
 
+// Razorpay instance
+const razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
+    ? new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET
+    })
+    : null;
+console.log('DEBUG - Razorpay configured:', razorpay ? 'YES' : 'NO');
+
 // Middleware
+const allowedOrigin = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: [allowedOrigin, 'http://localhost:5173', 'http://localhost:5174'],
     credentials: true
 }));
 app.use(express.json());
@@ -1092,8 +1104,166 @@ app.get('/api/reports/:appointmentId/download', async (req, res) => {
     }
 });
 
+// ============================================
+// RAZORPAY PAYMENT ROUTES
+// ============================================
+
+// Create a Razorpay order
+app.post('/api/transactions/create-order', async (req, res) => {
+    try {
+        if (!razorpay) {
+            return res.status(500).json({ error: 'Razorpay not configured' });
+        }
+
+        const { amount, bookingId, type, currency = 'INR' } = req.body;
+
+        if (!amount || !bookingId || !type) {
+            return res.status(400).json({ error: 'Missing required fields: amount, bookingId, type' });
+        }
+
+        // Create Razorpay order (amount is in paise)
+        const order = await razorpay.orders.create({
+            amount: Math.round(amount * 100), // Convert rupees to paise
+            currency,
+            receipt: `${type}_${bookingId}`,
+            notes: {
+                bookingId,
+                type // 'doctor' or 'lab'
+            }
+        });
+
+        // Store order ID in DB
+        if (supabase) {
+            if (type === 'doctor') {
+                await supabase
+                    .from('doctor_appointments')
+                    .update({ razorpay_order_id: order.id })
+                    .eq('appointment_id', bookingId);
+            } else if (type === 'lab') {
+                await supabase
+                    .from('appointments')
+                    .update({ razorpay_order_id: order.id })
+                    .eq('appointment_id', bookingId);
+            }
+        }
+
+        res.json({
+            success: true,
+            order: {
+                id: order.id,
+                amount: order.amount,
+                currency: order.currency
+            },
+            key: process.env.RAZORPAY_KEY_ID
+        });
+    } catch (error) {
+        console.error('Create order error:', error);
+        res.status(500).json({ error: 'Failed to create payment order' });
+    }
+});
+
+// Verify Payment Signature
+app.post('/api/transactions/verify', async (req, res) => {
+    try {
+        if (!razorpay) {
+            return res.status(500).json({ error: 'Razorpay not configured' });
+        }
+
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingId, type } = req.body;
+
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !bookingId || !type) {
+            return res.status(400).json({ error: 'Missing required verification fields' });
+        }
+
+        // Verify signature
+        const body = razorpay_order_id + '|' + razorpay_payment_id;
+        const expectedSignature = crypto
+            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+            .update(body)
+            .digest('hex');
+
+        if (expectedSignature !== razorpay_signature) {
+            return res.status(400).json({ error: 'Invalid payment signature' });
+        }
+
+        // Update DB based on type
+        if (supabase) {
+            if (type === 'doctor') {
+                await supabase
+                    .from('doctor_appointments')
+                    .update({
+                        payment_status: 'paid',
+                        status: 'scheduled',
+                        razorpay_payment_id: razorpay_payment_id
+                    })
+                    .eq('appointment_id', bookingId);
+
+                // Create payment record
+                const { data: appt } = await supabase
+                    .from('doctor_appointments')
+                    .select('patient_id, doctor_id')
+                    .eq('appointment_id', bookingId)
+                    .single();
+
+                if (appt) {
+                    await supabase.from('doctor_payments').insert({
+                        appointment_id: bookingId,
+                        patient_id: appt.patient_id,
+                        doctor_id: appt.doctor_id,
+                        amount: req.body.amount || 0,
+                        status: 'paid'
+                    });
+                }
+            } else if (type === 'lab') {
+                await supabase
+                    .from('appointments')
+                    .update({
+                        status: 'BOOKED',
+                        payment_status: 'paid',
+                        razorpay_payment_id: razorpay_payment_id
+                    })
+                    .eq('appointment_id', bookingId);
+
+                // Create lab payment record
+                const { data: appt } = await supabase
+                    .from('appointments')
+                    .select('patient_id, lab_id, test_id')
+                    .eq('appointment_id', bookingId)
+                    .single();
+
+                if (appt) {
+                    // Get test price
+                    const { data: testData } = await supabase
+                        .from('lab_tests')
+                        .select('price')
+                        .eq('test_id', appt.test_id)
+                        .single();
+
+                    await supabase.from('lab_payments').insert({
+                        appointment_id: bookingId,
+                        patient_id: appt.patient_id,
+                        lab_id: appt.lab_id,
+                        amount: testData?.price || req.body.amount || 0,
+                        status: 'paid',
+                        razorpay_payment_id: razorpay_payment_id
+                    });
+                }
+            }
+        }
+
+        res.json({
+            success: true,
+            message: 'Payment verified successfully'
+        });
+    } catch (error) {
+        console.error('Verify payment error:', error);
+        res.status(500).json({ error: 'Payment verification failed' });
+    }
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`🗄️ Supabase configured: ${supabase ? 'YES' : 'NO'}`);
+    console.log(`💳 Razorpay configured: ${razorpay ? 'YES' : 'NO'}`);
 });

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
-import { 
-  Upload, FileText, CheckCircle2, X, QrCode, 
-  Search, Download, Eye, Clock 
+import {
+  Upload, FileText, CheckCircle2, X, QrCode,
+  Search, Download, Eye, Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,8 +31,8 @@ export function UploadReport() {
     }
   }, []);
 
-  const readyBookings = bookings.filter(b => 
-    b.status === 'testing' || b.status === 'sample-collected'
+  const readyBookings = bookings.filter(b =>
+    b.status === 'TESTING' || b.status === 'SAMPLE_COLLECTED'
   );
 
   const filteredBookings = readyBookings.filter(booking =>
@@ -91,8 +91,8 @@ export function UploadReport() {
               onDrop={handleDrop}
               className={cn(
                 'border-2 border-dashed rounded-2xl p-12 text-center transition-all',
-                dragActive 
-                  ? 'border-indigo-500 bg-indigo-50' 
+                dragActive
+                  ? 'border-indigo-500 bg-indigo-50'
                   : 'border-slate-300 hover:border-indigo-300 hover:bg-slate-50'
               )}
             >
@@ -109,8 +109,8 @@ export function UploadReport() {
                 className="hidden"
                 id="file-upload"
               />
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="mt-4"
                 onClick={() => document.getElementById('file-upload')?.click()}
               >
@@ -131,7 +131,7 @@ export function UploadReport() {
                     </p>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => setUploadedFile(null)}
                   className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
                 >
@@ -178,7 +178,7 @@ export function UploadReport() {
                 </div>
               </div>
 
-              <Button 
+              <Button
                 className="w-full mt-4 bg-indigo-500 hover:bg-indigo-600"
                 disabled={!selectedBooking}
                 onClick={handleUpload}
@@ -207,10 +207,10 @@ export function UploadReport() {
                     Ready
                   </Badge>
                 </div>
-                
+
                 <h4 className="font-medium text-slate-800">{booking.testName}</h4>
                 <p className="text-sm text-slate-500">{booking.patientName}</p>
-                
+
                 <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
                   <Clock className="w-3 h-3" />
                   {booking.completedAt ? new Date(booking.completedAt).toLocaleDateString() : 'N/A'}
@@ -225,8 +225,8 @@ export function UploadReport() {
                     <Download className="w-4 h-4 mr-1" />
                     PDF
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="icon"
                     onClick={() => setShowQRDialog(true)}
                   >
@@ -245,7 +245,7 @@ export function UploadReport() {
           <DialogHeader>
             <DialogTitle>Report Preview</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-6">
             {/* Report Header */}
             <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl p-6 text-white">

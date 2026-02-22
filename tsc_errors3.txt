@@ -1,0 +1,7 @@
+﻿src/components/admin/AdminDashboard.tsx(13,36): error TS6196: 'Booking' is declared but never used.
+src/components/admin/DoctorApproval.tsx(4,20): error TS6133: 'Star' is declared but its value is never read.
+src/components/admin/DoctorApproval.tsx(6,5): error TS6133: 'FileText' is declared but its value is never read.
+src/components/admin/LabApproval.tsx(4,37): error TS6133: 'Star' is declared but its value is never read.
+src/components/admin/LabApproval.tsx(6,3): error TS6133: 'FileText' is declared but its value is never read.
+src/components/admin/LabApproval.tsx(6,13): error TS6133: 'Award' is declared but its value is never read.
+src/components/patient/BrowseDoctors.tsx(30,12): error TS6133: 'slotsLoading' is declared but its value is never read.

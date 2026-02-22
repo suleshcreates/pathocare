@@ -16,26 +16,36 @@ export const adminService = {
         const { count: pendingBookings } = await supabase
             .from('appointments')
             .select('*', { count: 'exact', head: true })
-            .eq('status', 'booked');
+            .eq('status', 'BOOKED');
 
         const { count: completedTests } = await supabase
             .from('appointments')
             .select('*', { count: 'exact', head: true })
-            .eq('status', 'completed');
+            .eq('status', 'REPORT_READY');
 
-        // Revenue calculation
-        const { data: revenueData } = await supabase
+        // Revenue calculation (Lab Revenue via Appointments)
+        const { data: labRevenueData } = await supabase
             .from('appointments')
             .select(`
-            test:lab_tests(price)
-        `)
-            .eq('status', 'completed');
+                test_id,
+                test:lab_tests(price)
+            `)
+            .eq('status', 'REPORT_READY');
 
-        const revenue = revenueData?.reduce((acc, curr: any) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const labRevenue = labRevenueData?.reduce((acc, curr: any) => {
             const price = Array.isArray(curr.test) ? curr.test[0]?.price : curr.test?.price;
             return acc + (price || 0);
         }, 0) || 0;
+
+        // Revenue calculation (Doctor Payments)
+        const { data: docPayments } = await supabase
+            .from('doctor_payments')
+            .select('amount')
+            .eq('status', 'paid');
+
+        const docRevenue = docPayments?.reduce((acc, curr) => acc + Number(curr.amount || 0), 0) || 0;
+
+        const totalRevenue = labRevenue + docRevenue;
 
         return {
             totalUsers: totalUsers || 0,
@@ -43,7 +53,7 @@ export const adminService = {
             totalBookings: totalBookings || 0,
             pendingBookings: pendingBookings || 0,
             completedTests: completedTests || 0,
-            revenue: revenue
+            revenue: totalRevenue
         };
     },
 
@@ -80,22 +90,38 @@ export const adminService = {
             query = query.eq('status', status);
         }
 
-        const { data, error } = await query.order('created_at', { ascending: false });
+        const { data: usersData, error } = await query.order('created_at', { ascending: false });
 
         if (error) throw error;
 
-        return data.map(u => ({
-            id: u.user_id || u.id,
-            name: u.lab_name || u.full_name,
-            email: u.email,
-            phone: u.mobile,
-            address: u.address,
-            isApproved: u.status === 'ACTIVE',
-            rating: 0,
-            accreditation: [],
-            services: [],
-            image: u.avatar_url
-        }));
+        // Fetch corresponding lab profile data for addresses
+        const labIds = usersData.map(u => u.user_id || u.id);
+        let labDataMap = new Map();
+
+        if (labIds.length > 0) {
+            const { data: labsData } = await supabase
+                .from('labs')
+                .select('*')
+                .in('lab_id', labIds);
+
+            labDataMap = new Map(labsData?.map(l => [l.lab_id, l]) || []);
+        }
+
+        return usersData.map(u => {
+            const extraData = labDataMap.get(u.user_id || u.id) || {};
+            return {
+                id: u.user_id || u.id,
+                name: u.lab_name || u.user_metadata?.lab_name || u.user_metadata?.labName || u.full_name || extraData.lab_name,
+                email: u.email,
+                phone: u.mobile || u.user_metadata?.mobile || u.user_metadata?.phone || extraData.phone,
+                address: u.address || u.user_metadata?.address || extraData.address,
+                isApproved: u.status === 'ACTIVE',
+                rating: 0,
+                accreditation: [],
+                services: [],
+                image: u.avatar_url
+            };
+        });
     },
 
     // Approve Lab
@@ -103,6 +129,16 @@ export const adminService = {
         const { error } = await supabase
             .from('users')
             .update({ status: 'ACTIVE' })
+            .eq('user_id', labId);
+
+        if (error) throw error;
+    },
+
+    // Reject/Suspend Lab
+    async rejectLab(labId: string): Promise<void> {
+        const { error } = await supabase
+            .from('users')
+            .update({ status: 'REJECTED' })
             .eq('user_id', labId);
 
         if (error) throw error;
@@ -147,17 +183,26 @@ export const adminService = {
 
     // Get Analytics Data
     async getAnalytics() {
-        const { data: bookings, error } = await supabase
+        const { data: bookings, error: bookingsError } = await supabase
             .from('appointments')
             .select(`
                 created_at,
                 status,
                 lab_id,
-                lab:users!appointments_lab_id_fkey(full_name, user_metadata), 
-                test:lab_tests(price, category)
+                test_id,
+                lab:users!appointments_lab_id_fkey(full_name)
             `);
 
-        if (error) throw error;
+        if (bookingsError) throw bookingsError;
+
+        const { data: tests, error: testsError } = await supabase
+            .from('lab_tests')
+            .select('test_id, price, category');
+
+        if (testsError) throw testsError;
+
+        // Map tests for quick lookup
+        const testMap = new Map(tests?.map(t => [t.test_id, t]));
 
         // 1. Monthly Data
         const monthlyData: Record<string, number> = {};
@@ -175,12 +220,12 @@ export const adminService = {
         bookings?.forEach(booking => {
             const date = new Date(booking.created_at);
             const monthLabel = months[date.getMonth()];
+            const test = testMap.get(booking.test_id);
+
             if (monthlyData.hasOwnProperty(monthLabel)) {
                 monthlyData[monthLabel]++;
-                // @ts-ignore
-                if (booking.status === 'completed') {
-                    // @ts-ignore
-                    revenueTrend[monthLabel] += (booking.test?.price || 0);
+                if (booking.status === 'REPORT_READY') {
+                    revenueTrend[monthLabel] += (test?.price || 0);
                 }
             }
         });
@@ -188,8 +233,8 @@ export const adminService = {
         // 2. Test Categories
         const categoryCounts: Record<string, number> = {};
         bookings?.forEach(booking => {
-            // @ts-ignore
-            const cat = booking.test?.category || 'Other';
+            const test = testMap.get(booking.test_id);
+            const cat = test?.category || 'Other';
             categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
         });
 
@@ -198,7 +243,7 @@ export const adminService = {
         bookings?.forEach(booking => {
             const labId = booking.lab_id;
             // @ts-ignore
-            const labName = booking.lab?.user_metadata?.lab_name || booking.lab?.full_name || 'Unknown Lab';
+            const labName = booking.lab?.full_name || 'Unknown Lab';
 
             if (!labCounts[labId]) {
                 labCounts[labId] = { name: labName, bookings: 0 };
@@ -217,5 +262,43 @@ export const adminService = {
             testCategories: Object.entries(categoryCounts).map(([label, value]) => ({ label, value, color: 'bg-indigo-400' })),
             topLabs
         };
+    },
+
+    // Get Admin Bookings Oversight
+    async getBookings(): Promise<any[]> {
+        const { data: appointments, error } = await supabase
+            .from('appointments')
+            .select('*')
+            .order('appointment_date', { ascending: false });
+
+        if (error) throw error;
+        if (!appointments || appointments.length === 0) return [];
+
+        const patientIds = [...new Set(appointments.map(a => a.patient_id).filter(Boolean))];
+        const labIds = [...new Set(appointments.map(a => a.lab_id).filter(Boolean))];
+        const testIds = [...new Set(appointments.map(a => a.test_id).filter(Boolean))];
+
+        const [patientsRes, labsRes, testsRes] = await Promise.all([
+            supabase.from('users').select('user_id, full_name').in('user_id', patientIds),
+            supabase.from('users').select('user_id, full_name, user_metadata').in('user_id', labIds),
+            supabase.from('lab_tests').select('test_id, test_name').in('test_id', testIds)
+        ]);
+
+        const patientMap = new Map(patientsRes.data?.map(p => [p.user_id, p.full_name]) || []);
+        const labMap = new Map(labsRes.data?.map(l => [l.user_id, l.user_metadata?.lab_name || l.user_metadata?.labName || l.full_name]) || []);
+        const testMap = new Map(testsRes.data?.map(t => [t.test_id, t.test_name]) || []);
+
+        return appointments.map(b => ({
+            id: b.appointment_id,
+            patientName: patientMap.get(b.patient_id) || 'Unknown Patient',
+            labName: labMap.get(b.lab_id) || 'Unknown Lab',
+            testName: testMap.get(b.test_id) || 'Unknown Test',
+            appointmentDate: new Date(b.appointment_date).toLocaleDateString('en-IN', {
+                year: 'numeric', month: 'short', day: 'numeric'
+            }),
+            appointmentTime: b.appointment_time,
+            status: b.status,
+            reportUrl: b.report_url
+        }));
     }
 };

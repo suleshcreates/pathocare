@@ -22,5 +22,11 @@ if (!isConfigured) {
 
 // Export a robust client or a fallback that logs errors when used
 export const supabase = isConfigured
-    ? createClient(supabaseUrl, supabaseAnonKey)
+    ? createClient(supabaseUrl, supabaseAnonKey, {
+        realtime: {
+            params: {
+                eventsPerSecond: 10,
+            },
+        },
+    })
     : createClient('https://placeholder.supabase.co', 'placeholder-key'); // Fallback to prevent crash, will fail on actual calls

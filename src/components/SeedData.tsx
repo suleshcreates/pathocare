@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { labTests, labs } from '@/data/mockData';
+import { labTests } from '@/data/mockData';
 import { Database } from 'lucide-react';
 
 export function SeedData() {

@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { LandingPage } from '@/pages/LandingPage';
 import { Dashboard } from '@/pages/Dashboard';
-import { VideoRoom } from '@/pages/VideoRoom';
 import { Login } from '@/pages/Login';
 import { Signup } from '@/pages/Signup';
 import { AdminLogin } from '@/pages/AdminLogin';
@@ -52,14 +51,6 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/room/:roomId"
-        element={
-          <ProtectedRoute>
-            <VideoRoom />
-          </ProtectedRoute>
-        }
-      />
     </Routes>
   );
 }
@@ -76,3 +67,5 @@ function App() {
 }
 
 export default App;
+
+export const useBreach = () => ({ isSystemUnderAttack: false, threatLevel: 'LOW' });

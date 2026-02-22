@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
-    Search, Star, Video, Building2, Calendar, Clock,
-    Loader2, ChevronRight, CreditCard, CheckCircle2
+    Search, Star, Building2, Calendar, Clock,
+    Loader2, ChevronRight, CheckCircle2
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,11 +23,10 @@ export function BrowseDoctors() {
 
     // Booking State
     const [selectedDoctor, setSelectedDoctor] = useState<DoctorProfile | null>(null);
-    const [bookingStep, setBookingStep] = useState<'info' | 'select' | 'slots' | 'pay' | 'success'>('info');
-    const [consultationType, setConsultationType] = useState<ConsultationType>('video');
+    const [bookingStep, setBookingStep] = useState<'info' | 'slots' | 'pay' | 'success'>('info');
+    const [consultationType, setConsultationType] = useState<ConsultationType>('hospital');
     const [availableSlots, setAvailableSlots] = useState<DoctorSlot[]>([]);
     const [selectedSlot, setSelectedSlot] = useState<DoctorSlot | null>(null);
-    const [slotsLoading, setSlotsLoading] = useState(false);
     const [booking, setBooking] = useState(false);
 
     useEffect(() => {
@@ -57,7 +56,6 @@ export function BrowseDoctors() {
     const handleSelectType = async (type: ConsultationType) => {
         if (!selectedDoctor) return;
         setConsultationType(type);
-        setSlotsLoading(true);
         try {
             const slots = await doctorService.getAvailableSlots(selectedDoctor.id, type);
             setAvailableSlots(slots);
@@ -65,7 +63,6 @@ export function BrowseDoctors() {
         } catch (err) {
             toast.error('Failed to load available slots');
         } finally {
-            setSlotsLoading(false);
         }
     };
 
@@ -108,7 +105,7 @@ export function BrowseDoctors() {
         <div className="space-y-6 p-6">
             <div>
                 <h1 className="text-2xl font-bold text-slate-800">Consult a Doctor</h1>
-                <p className="text-slate-500 mt-1">Book a video or hospital consultation with our verified doctors</p>
+                <p className="text-slate-500 mt-1">Book a hospital consultation with our verified doctors</p>
             </div>
 
             {/* Search */}
@@ -151,7 +148,6 @@ export function BrowseDoctors() {
                             <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                                 <span className="text-lg font-bold text-slate-800">₹{doctor.consultationFee || 500}</span>
                                 <div className="flex gap-2">
-                                    <Badge variant="outline" className="text-xs"><Video className="w-3 h-3 mr-1 text-blue-500" />Video</Badge>
                                     <Badge variant="outline" className="text-xs"><Building2 className="w-3 h-3 mr-1 text-amber-500" />Hospital</Badge>
                                 </div>
                             </div>
@@ -177,7 +173,6 @@ export function BrowseDoctors() {
                         </DialogTitle>
                         <DialogDescription>
                             {bookingStep === 'info' && 'Doctor Details'}
-                            {bookingStep === 'select' && 'Choose your consultation type'}
                             {bookingStep === 'slots' && 'Select an available time slot'}
                             {bookingStep === 'pay' && 'Confirm your appointment request'}
                             {bookingStep === 'success' && 'Your appointment request has been sent!'}
@@ -223,51 +218,12 @@ export function BrowseDoctors() {
                                     </div>
                                 )}
 
-                                <Button className="w-full bg-purple-600 hover:bg-purple-700 h-12 text-lg font-semibold rounded-xl" onClick={() => setBookingStep('select')}>
+                                <Button className="w-full bg-purple-600 hover:bg-purple-700 h-12 text-lg font-semibold rounded-xl" onClick={() => handleSelectType('hospital')}>
                                     Book Consultation
                                 </Button>
                             </div>
                         )}
 
-                        {/* Step 1: Select Type */}
-                        {bookingStep === 'select' && (
-                            <div className="space-y-3">
-                                <button
-                                    onClick={() => handleSelectType('video')}
-                                    className="w-full flex items-center gap-4 p-4 border-2 border-slate-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all"
-                                >
-                                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                                        <Video className="w-6 h-6 text-blue-600" />
-                                    </div>
-                                    <div className="text-left flex-1">
-                                        <p className="font-semibold text-slate-800">Video Consultation</p>
-                                        <p className="text-sm text-slate-500">Connect via secure video call from home</p>
-                                    </div>
-                                    <ChevronRight className="w-5 h-5 text-slate-400" />
-                                </button>
-                                <button
-                                    onClick={() => handleSelectType('hospital')}
-                                    className="w-full flex items-center gap-4 p-4 border-2 border-slate-200 rounded-xl hover:border-amber-400 hover:bg-amber-50 transition-all"
-                                >
-                                    <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                                        <Building2 className="w-6 h-6 text-amber-600" />
-                                    </div>
-                                    <div className="text-left flex-1">
-                                        <p className="font-semibold text-slate-800">Hospital Visit</p>
-                                        <p className="text-sm text-slate-500">Visit the doctor at their clinic</p>
-                                    </div>
-                                    <ChevronRight className="w-5 h-5 text-slate-400" />
-                                </button>
-                                {slotsLoading && (
-                                    <div className="flex justify-center py-4">
-                                        <Loader2 className="animate-spin w-6 h-6 text-purple-600" />
-                                    </div>
-                                )}
-                                <Button variant="outline" className="w-full mt-2" onClick={() => setBookingStep('info')}>
-                                    ← Back to Profile
-                                </Button>
-                            </div>
-                        )}
 
                         {/* Step 2: Select Slot */}
                         {bookingStep === 'slots' && (
@@ -299,7 +255,7 @@ export function BrowseDoctors() {
                                         </div>
                                     ))
                                 )}
-                                <Button variant="outline" className="w-full" onClick={() => setBookingStep('select')}>
+                                <Button variant="outline" className="w-full" onClick={() => setBookingStep('info')}>
                                     ← Back
                                 </Button>
                             </div>
@@ -317,7 +273,7 @@ export function BrowseDoctors() {
                                     <div className="flex justify-between text-sm">
                                         <span className="text-slate-500">Type</span>
                                         <Badge variant="outline" className="text-xs">
-                                            {consultationType === 'video' ? <><Video className="w-3 h-3 mr-1" /> Video</> : <><Building2 className="w-3 h-3 mr-1" /> Hospital</>}
+                                            <Building2 className="w-3 h-3 mr-1 text-amber-500" /> Hospital
                                         </Badge>
                                     </div>
                                     <div className="flex justify-between text-sm">
