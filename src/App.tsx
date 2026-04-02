@@ -26,6 +26,7 @@ import { PatientAuth } from '@/pages/auth/PatientAuth';
 import { LabAuth } from '@/pages/auth/LabAuth';
 import { DoctorAuth } from '@/pages/auth/DoctorAuth';
 import { TechnicianAuth } from '@/pages/auth/TechnicianAuth';
+import { VerifyReport } from '@/pages/VerifyReport';
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -51,6 +52,9 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* Public Report Verification */}
+      <Route path="/verify/:appointmentId" element={<VerifyReport />} />
     </Routes>
   );
 }

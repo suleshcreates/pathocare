@@ -190,7 +190,7 @@ export const bookingService = {
                 appointmentTime: item.time_slot,
                 price: test?.price,
                 bookedAt: item.created_at,
-                reportUrl: report?.file_path ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/reports/${report.file_path}` : undefined,
+                reportUrl: report?.file_path ? 'has-report' : undefined,
                 completedAt: report?.generated_at
             };
         });

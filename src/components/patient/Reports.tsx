@@ -50,7 +50,7 @@ export function Reports() {
           verifiedBy: 'Lab Technician',
           parameters: [],
           summary: 'Report generated successfully.',
-          pdfUrl: b.reportUrl || '#',
+          pdfUrl: b.reportUrl && b.reportUrl !== '#' ? 'has-report' : '#',
           qrCode: 'mock-qr'
         }));
 
@@ -89,20 +89,20 @@ export function Reports() {
   };
 
   // Download PDF handler
-  const handleDownload = async () => {
-    if (!selectedReport) return;
+  const handleDownload = async (bookingId?: string) => {
+    const id = bookingId || selectedReport?.bookingId;
+    if (!id) return;
 
-    // Optimistic check for pre-calculated URL or fetch fresh one
-    let url = selectedReport.pdfUrl;
-    if (!url || url === '#' || url.includes('undefined')) {
-      const fetchedUrl = await bookingService.getReportUrl(selectedReport.bookingId);
-      if (fetchedUrl) url = fetchedUrl;
-    }
-
-    if (url && url !== '#') {
-      window.open(url, '_blank');
-    } else {
-      alert('Report PDF is not available yet. Please try again later.');
+    try {
+      const fetchedUrl = await bookingService.getReportUrl(id);
+      if (fetchedUrl) {
+        window.open(fetchedUrl, '_blank');
+      } else {
+        alert('Report PDF is not available yet. Please try again later.');
+      }
+    } catch (error) {
+      console.error('Failed to get report URL:', error);
+      alert('Failed to download report. Please try again.');
     }
   };
 
@@ -253,19 +253,7 @@ export function Reports() {
                   size="sm"
                   variant="default"
                   className="flex-1 bg-teal-500 hover:bg-teal-600"
-                  onClick={async () => {
-                    // Direct handling for list item download
-                    let url = report.pdfUrl;
-                    if (!url || url === '#' || url.includes('undefined')) {
-                      const fetchedUrl = await bookingService.getReportUrl(report.bookingId);
-                      if (fetchedUrl) url = fetchedUrl;
-                    }
-                    if (url && url !== '#') {
-                      window.open(url, '_blank');
-                    } else {
-                      alert('Report PDF is not available yet.');
-                    }
-                  }}
+                  onClick={() => handleDownload(report.bookingId)}
                 >
                   <Download className="w-4 h-4 mr-1" />
                   PDF
@@ -396,7 +384,7 @@ export function Reports() {
 
               {/* Actions */}
               <div className="flex gap-3">
-                <Button className="flex-1 bg-teal-500 hover:bg-teal-600" onClick={handleDownload}>
+                <Button className="flex-1 bg-teal-500 hover:bg-teal-600" onClick={() => handleDownload()}>
                   <Download className="w-4 h-4 mr-2" />
                   Download PDF
                 </Button>
