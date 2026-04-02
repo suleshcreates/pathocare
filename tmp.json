@@ -1,0 +1,12 @@
+[
+  {
+    "payment_id": "b383f7db-ba29-4a3f-9553-0c5d9b8c3181",
+    "appointment_id": "841db552-1e5f-4b3f-a7b1-c5643e3dcc9f",
+    "patient_id": "df044e7f-0490-4d8e-8103-12889a833d05",
+    "lab_id": "74c0baca-b912-4e86-9290-c4ebacd14e51",
+    "amount": 649,
+    "status": "paid",
+    "razorpay_payment_id": "pay_SO2RrMFOqz8U99",
+    "created_at": "2026-03-06T18:27:09.562387+00:00"
+  }
+]
