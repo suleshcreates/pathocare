@@ -183,7 +183,7 @@ export function LabAuth() {
         <AuthLayout
             roleName="Laboratory"
             roleColor="indigo"
-            image="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?q=80&w=2070&auto=format&fit=crop"
+            image="https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=2000&auto=format&fit=crop"
             title={mode === 'login' ? "Partners Portal" : "Register Your Lab"}
             description={mode === 'login' ? "Manage your specialized tests and digital reports." : "Join India's fastest growing diagnostic network."}
         >

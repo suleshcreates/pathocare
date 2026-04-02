@@ -18,7 +18,6 @@ import { LabApproval } from '@/components/admin/LabApproval';
 import { DoctorApproval } from '@/components/admin/DoctorApproval';
 import { BookingOversight } from '@/components/admin/BookingOversight';
 import { AdminEarnings } from '@/components/admin/AdminEarnings';
-import { SeedData } from '@/components/SeedData';
 import { ManageTests } from '@/components/lab/ManageTests';
 import { ManageSchedule } from '@/components/lab/ManageSchedule';
 import { TechnicianDashboard } from '@/components/technician/TechnicianDashboard';
@@ -167,9 +166,6 @@ export function Dashboard() {
 
     return (
         <Layout>
-            <div className="fixed bottom-4 right-4 z-50">
-                <SeedData />
-            </div>
             {renderContent()}
         </Layout>
     );

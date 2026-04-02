@@ -113,8 +113,7 @@ export function ManageSchedule() {
                 lab_id: user?.id,
                 test_id: selectedTestId,
                 slot_date: selectedDate,
-                time_slot: timeSlotString,
-                max_capacity: parseInt(capacity)
+                time_slot: timeSlotString
             });
 
             toast.success("Slot added successfully");
@@ -283,7 +282,7 @@ export function ManageSchedule() {
                                                         <p className="font-semibold text-slate-800">{slot.time_slot}</p>
                                                         <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
                                                             <Users className="w-3 h-3" />
-                                                            Max Capacity: {slot.max_capacity}
+                                                            Max Capacity: 5
                                                         </div>
                                                     </div>
                                                 </div>
