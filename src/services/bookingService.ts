@@ -314,33 +314,19 @@ export const bookingService = {
         }
     },
 
-    // Get report file URL (signed URL from backend)
-    // Get report file URL (signed URL directly from Supabase)
+    // Get report file URL (via backend which has service role access)
     async getReportUrl(appointmentId: string) {
         try {
-            // 1. Get file path from reports table
-            const { data: report, error: reportError } = await supabase
-                .from('reports')
-                .select('file_path')
-                .eq('appointment_id', appointmentId)
-                .single();
-
-            if (reportError || !report) {
-                console.error('Report not found for appointment:', appointmentId);
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const response = await fetch(`${API_URL}/api/reports/${appointmentId}/download`);
+            
+            if (!response.ok) {
+                console.error('Report download API error:', response.status);
                 return null;
             }
 
-            // 2. Generate signed URL
-            const { data, error } = await supabase.storage
-                .from('reports')
-                .createSignedUrl(report.file_path, 3600); // Valid for 1 hour
-
-            if (error) {
-                console.error('Error creating signed URL:', error);
-                return null;
-            }
-
-            return data.signedUrl;
+            const data = await response.json();
+            return data.downloadUrl || null;
         } catch (error) {
             console.error('Error fetching report URL:', error);
             return null;

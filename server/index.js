@@ -37,7 +37,7 @@ console.log('DEBUG - Razorpay configured:', razorpay ? 'YES' : 'NO');
 // Middleware
 const allowedOrigin = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
 app.use(cors({
-    origin: [allowedOrigin, 'http://localhost:5173', 'http://localhost:5174'],
+    origin: [allowedOrigin, 'http://localhost:5173', 'http://localhost:5174', 'https://pathocare-ee7f0.web.app', 'https://pathocare-ee7f0.firebaseapp.com'],
     credentials: true
 }));
 app.use(express.json());
