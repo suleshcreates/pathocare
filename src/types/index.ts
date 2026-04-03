@@ -28,6 +28,8 @@ export interface LabTest {
   turnaroundTime: string;
   parameters?: string[];
   image?: string;
+  labName?: string;
+  labAddress?: string;
 }
 
 // Lab

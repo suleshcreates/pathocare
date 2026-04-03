@@ -356,6 +356,19 @@ export function BookTest() {
                     />
                   </div>
                 )}
+
+                {collectionType === 'lab' && (
+                  <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200 animate-in fade-in slide-in-from-top-2">
+                    <h4 className="font-semibold text-emerald-800 flex items-center gap-2">
+                      <Building2 className="w-4 h-4" />
+                      {test?.labName || 'Laboratory'}
+                    </h4>
+                    <p className="text-sm text-emerald-700 mt-1 flex items-start gap-1">
+                      <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-emerald-600" />
+                      {test?.labAddress || 'Address not available'}
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

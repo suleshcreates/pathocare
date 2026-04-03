@@ -81,6 +81,21 @@ export const testService = {
             .single();
 
         if (error) throw error;
+        
+        let labName = 'Unknown Lab';
+        let labAddress = '';
+        if (data.lab_id) {
+             const { data: labData } = await supabase
+                .from('labs')
+                .select('lab_name, address')
+                .eq('lab_id', data.lab_id)
+                .single();
+                
+             if (labData) {
+                 labName = labData.lab_name;
+                 labAddress = labData.address;
+             }
+        }
 
         // Map fields
         return {
@@ -93,9 +108,12 @@ export const testService = {
             homeVisitCharge: data.home_visit_charge,
             turnaroundTime: data.report_time,
             image: data.image_url,
-            parameters: []
+            parameters: [],
+            labName,
+            labAddress
         };
     },
+
 
     // Add a new test (Lab/Admin only)
     async addTest(test: any) {
