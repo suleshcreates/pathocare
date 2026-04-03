@@ -3,7 +3,7 @@ import {
   LayoutDashboard, FlaskConical, Calendar, FileText,
   History, Users, Building2, ClipboardCheck, BarChart3,
   Settings, ChevronRight, Beaker, Clock, Stethoscope,
-  IndianRupee, Landmark
+  IndianRupee, Landmark, Mail, Phone, MessageCircle, X
 } from 'lucide-react';
 import type { UserRole } from '@/types';
 import { cn } from '@/lib/utils';
@@ -107,6 +107,7 @@ const roleColors: Record<UserRole, { bg: string; text: string; active: string }>
 export function Sidebar({ role, isMobileOpen = false, onMobileClose }: SidebarProps) {
   const [activeItem, setActiveItem] = useState(window.location.hash || '#dashboard');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
 
   // Sync activeItem with URL hash on mount and hash changes
   useEffect(() => {
@@ -131,6 +132,7 @@ export function Sidebar({ role, isMobileOpen = false, onMobileClose }: SidebarPr
   };
 
   return (
+    <>
     <aside
       className={cn(
         "fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r border-slate-200 transition-all duration-300 ease-clinical z-40",
@@ -231,10 +233,13 @@ export function Sidebar({ role, isMobileOpen = false, onMobileClose }: SidebarPr
                   <p className="text-xs text-slate-500">Contact support</p>
                 </div>
               </div>
-              <button className={cn(
-                "w-full py-2 rounded-lg text-sm font-medium transition-colors",
-                colors.bg, colors.text, "hover:opacity-80"
-              )}>
+              <button
+                onClick={() => setShowSupport(true)}
+                className={cn(
+                  "w-full py-2 rounded-lg text-sm font-medium transition-colors",
+                  colors.bg, colors.text, "hover:opacity-80"
+                )}
+              >
                 Get Support
               </button>
             </div>
@@ -242,5 +247,78 @@ export function Sidebar({ role, isMobileOpen = false, onMobileClose }: SidebarPr
         )}
       </div>
     </aside>
+
+    {/* Support Dialog */}
+    {showSupport && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowSupport(false)}>
+        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+          {/* Header */}
+          <div className="bg-gradient-to-r from-teal-500 to-indigo-600 px-6 py-5 text-white relative">
+            <button onClick={() => setShowSupport(false)} className="absolute top-4 right-4 p-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white/10 backdrop-blur rounded-xl flex items-center justify-center">
+                <MessageCircle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold">Get Support</h3>
+                <p className="text-teal-100 text-sm">We're here to help 24/7</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Options */}
+          <div className="p-6 space-y-3">
+            <a
+              href="mailto:support@pathocare.com"
+              className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-all group"
+            >
+              <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center group-hover:bg-teal-200 transition-colors">
+                <Mail className="w-5 h-5 text-teal-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-slate-800 text-sm">Email Support</p>
+                <p className="text-xs text-slate-500">support@pathocare.com</p>
+              </div>
+            </a>
+
+            <a
+              href="tel:+911800123456"
+              className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all group"
+            >
+              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                <Phone className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-slate-800 text-sm">Call Us</p>
+                <p className="text-xs text-slate-500">1800-123-456 (Toll Free)</p>
+              </div>
+            </a>
+
+            <a
+              href="https://wa.me/919876543210"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all group"
+            >
+              <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                <MessageCircle className="w-5 h-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-slate-800 text-sm">WhatsApp</p>
+                <p className="text-xs text-slate-500">Chat with us instantly</p>
+              </div>
+            </a>
+
+            <div className="pt-3 text-center">
+              <p className="text-xs text-slate-400">Available Mon–Sat, 8 AM – 10 PM IST</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
+

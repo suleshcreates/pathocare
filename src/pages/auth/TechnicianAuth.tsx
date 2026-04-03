@@ -105,7 +105,7 @@ export function TechnicianAuth() {
             <AuthLayout
                 roleName="Technician"
                 roleColor="amber"
-                image="https://images.unsplash.com/photo-1576101917035-2b86c8eb62d5?q=80&w=2070&auto=format&fit=crop"
+                image="https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=2080&auto=format&fit=crop"
                 title="Account Ready"
                 description="Welcome to the phlebotomy team."
             >
@@ -133,7 +133,7 @@ export function TechnicianAuth() {
             <AuthLayout
                 roleName="Technician"
                 roleColor="amber"
-                image="https://images.unsplash.com/photo-1576101917035-2b86c8eb62d5?q=80&w=2070&auto=format&fit=crop"
+                image="https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=2080&auto=format&fit=crop"
                 title="Verify Access"
                 description="Securely verify your professional email."
             >
@@ -159,7 +159,7 @@ export function TechnicianAuth() {
         <AuthLayout
             roleName="Technician"
             roleColor="amber"
-            image="https://images.unsplash.com/photo-1576101917035-2b86c8eb62d5?q=80&w=2070&auto=format&fit=crop"
+            image="https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=2080&auto=format&fit=crop"
             title={mode === 'login' ? "Field Portal" : "Join Fleet"}
             description={mode === 'login' ? "Access your assigned sample collection tasks." : "Partner as a certified lab technician."}
         >

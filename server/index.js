@@ -1122,28 +1122,34 @@ app.post('/api/transactions/create-order', async (req, res) => {
         }
 
         // Create Razorpay order (amount is in paise)
+        // Truncate receipt to 40 chars (Razorpay limit)
+        const receipt = `${type}_${bookingId}`.slice(0, 40);
         const order = await razorpay.orders.create({
             amount: Math.round(amount * 100), // Convert rupees to paise
             currency,
-            receipt: `${type}_${bookingId}`,
+            receipt,
             notes: {
                 bookingId,
                 type // 'doctor' or 'lab'
             }
         });
 
-        // Store order ID in DB
+        // Store order ID in DB (non-blocking — column may not exist)
         if (supabase) {
-            if (type === 'doctor') {
-                await supabase
-                    .from('doctor_appointments')
-                    .update({ razorpay_order_id: order.id })
-                    .eq('appointment_id', bookingId);
-            } else if (type === 'lab') {
-                await supabase
-                    .from('appointments')
-                    .update({ razorpay_order_id: order.id })
-                    .eq('appointment_id', bookingId);
+            try {
+                if (type === 'doctor') {
+                    await supabase
+                        .from('doctor_appointments')
+                        .update({ razorpay_order_id: order.id })
+                        .eq('appointment_id', bookingId);
+                } else if (type === 'lab') {
+                    await supabase
+                        .from('appointments')
+                        .update({ razorpay_order_id: order.id })
+                        .eq('appointment_id', bookingId);
+                }
+            } catch (dbErr) {
+                console.warn('Non-critical: failed to store order ID in DB:', dbErr.message);
             }
         }
 
@@ -1158,7 +1164,7 @@ app.post('/api/transactions/create-order', async (req, res) => {
         });
     } catch (error) {
         console.error('Create order error:', error);
-        res.status(500).json({ error: 'Failed to create payment order' });
+        res.status(500).json({ error: error.description || error.message || 'Failed to create payment order' });
     }
 });
 
@@ -1188,72 +1194,85 @@ app.post('/api/transactions/verify', async (req, res) => {
 
         // Update DB based on type
         if (supabase) {
-            if (type === 'doctor') {
-                await supabase
-                    .from('doctor_appointments')
-                    .update({
-                        payment_status: 'paid',
-                        status: 'scheduled',
-                        razorpay_payment_id: razorpay_payment_id
-                    })
-                    .eq('appointment_id', bookingId);
+            try {
+                if (type === 'doctor') {
+                    await supabase
+                        .from('doctor_appointments')
+                        .update({
+                            payment_status: 'paid',
+                            status: 'scheduled',
+                            razorpay_payment_id: razorpay_payment_id
+                        })
+                        .eq('appointment_id', bookingId);
 
-                // Create payment record
-                const { data: appt } = await supabase
-                    .from('doctor_appointments')
-                    .select('patient_id, doctor_id')
-                    .eq('appointment_id', bookingId)
-                    .single();
+                    // Create payment record (non-blocking)
+                    try {
+                        const { data: appt } = await supabase
+                            .from('doctor_appointments')
+                            .select('patient_id, doctor_id')
+                            .eq('appointment_id', bookingId)
+                            .single();
 
-                if (appt) {
-                    await supabase.from('doctor_payments').insert({
-                        appointment_id: bookingId,
-                        patient_id: appt.patient_id,
-                        doctor_id: appt.doctor_id,
-                        amount: req.body.amount || 0,
-                        status: 'paid'
-                    });
+                        if (appt) {
+                            await supabase.from('doctor_payments').insert({
+                                appointment_id: bookingId,
+                                patient_id: appt.patient_id,
+                                doctor_id: appt.doctor_id,
+                                amount: req.body.amount || 0,
+                                status: 'paid'
+                            });
+                        }
+                    } catch (payRecordErr) {
+                        console.warn('Non-critical: failed to create doctor payment record:', payRecordErr.message);
+                    }
+                } else if (type === 'lab') {
+                    await supabase
+                        .from('appointments')
+                        .update({
+                            status: 'BOOKED',
+                            payment_status: 'paid',
+                            razorpay_payment_id: razorpay_payment_id
+                        })
+                        .eq('appointment_id', bookingId);
+
+                    // Create lab payment record (non-blocking)
+                    try {
+                        const { data: appt } = await supabase
+                            .from('appointments')
+                            .select('patient_id, lab_id, test_id')
+                            .eq('appointment_id', bookingId)
+                            .single();
+
+                        if (appt) {
+                            const { data: testData } = await supabase
+                                .from('lab_tests')
+                                .select('price')
+                                .eq('test_id', appt.test_id)
+                                .single();
+
+                            await supabase.from('lab_payments').insert({
+                                appointment_id: bookingId,
+                                patient_id: appt.patient_id,
+                                lab_id: appt.lab_id,
+                                amount: testData?.price || req.body.amount || 0,
+                                status: 'paid',
+                                razorpay_payment_id: razorpay_payment_id
+                            });
+                        }
+                    } catch (payRecordErr) {
+                        console.warn('Non-critical: failed to create lab payment record:', payRecordErr.message);
+                    }
                 }
-            } else if (type === 'lab') {
-                await supabase
-                    .from('appointments')
-                    .update({
-                        status: 'BOOKED',
-                        payment_status: 'paid',
-                        razorpay_payment_id: razorpay_payment_id
-                    })
-                    .eq('appointment_id', bookingId);
-
-                // Create lab payment record
-                const { data: appt } = await supabase
-                    .from('appointments')
-                    .select('patient_id, lab_id, test_id')
-                    .eq('appointment_id', bookingId)
-                    .single();
-
-                if (appt) {
-                    // Get test price
-                    const { data: testData } = await supabase
-                        .from('lab_tests')
-                        .select('price')
-                        .eq('test_id', appt.test_id)
-                        .single();
-
-                    await supabase.from('lab_payments').insert({
-                        appointment_id: bookingId,
-                        patient_id: appt.patient_id,
-                        lab_id: appt.lab_id,
-                        amount: testData?.price || req.body.amount || 0,
-                        status: 'paid',
-                        razorpay_payment_id: razorpay_payment_id
-                    });
-                }
+            } catch (dbErr) {
+                console.warn('Non-critical: DB update after payment verification failed:', dbErr.message);
             }
         }
 
         res.json({
             success: true,
-            message: 'Payment verified successfully'
+            message: 'Payment verified successfully',
+            paymentId: razorpay_payment_id,
+            orderId: razorpay_order_id
         });
     } catch (error) {
         console.error('Verify payment error:', error);

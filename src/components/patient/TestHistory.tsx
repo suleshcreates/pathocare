@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { bookingService } from '@/services/bookingService';
 import { useAuth } from '@/context/AuthContext';
 import type { Booking } from '@/types';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 /* ── Status configuration with dot colors ── */
@@ -185,6 +186,7 @@ export function TestHistory() {
                         <Button
                           size="sm"
                           className="flex-1 bg-teal-500 hover:bg-teal-600 text-white rounded-xl h-9 text-xs font-semibold"
+                          onClick={() => { window.location.hash = '#reports'; }}
                         >
                           <FileText className="w-3.5 h-3.5 mr-1" />
                           View Report
@@ -194,6 +196,13 @@ export function TestHistory() {
                             variant="outline"
                             size="sm"
                             className="rounded-xl h-9 text-xs"
+                            onClick={async () => {
+                              try {
+                                const url = await bookingService.getReportUrl(booking.id);
+                                if (url) { window.open(url, '_blank'); }
+                                else { toast.error('Report PDF not available yet'); }
+                              } catch { toast.error('Failed to download report'); }
+                            }}
                           >
                             <Download className="w-3.5 h-3.5" />
                           </Button>
@@ -202,6 +211,20 @@ export function TestHistory() {
                           variant="outline"
                           size="sm"
                           className="rounded-xl h-9 text-xs"
+                          onClick={async () => {
+                            if (navigator.share) {
+                              try {
+                                await navigator.share({
+                                  title: `${booking.testName} - Test Report`,
+                                  text: `View my ${booking.testName} test report from ${booking.labName}`,
+                                  url: window.location.href
+                                });
+                              } catch { /* cancelled */ }
+                            } else {
+                              navigator.clipboard.writeText(window.location.href);
+                              toast.success('Link copied to clipboard!');
+                            }
+                          }}
                         >
                           <Share2 className="w-3.5 h-3.5" />
                         </Button>

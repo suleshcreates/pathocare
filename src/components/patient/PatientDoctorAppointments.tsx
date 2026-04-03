@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
     Calendar, Clock, Building2, User,
-    Loader2, CreditCard, AlertCircle
+    Loader2, CreditCard, AlertCircle, Download, CheckCircle2
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { StatusBadge } from '@/components/StatusBadge';
 import { useAuth } from '@/context/AuthContext';
 import { doctorService } from '@/services/doctorService';
@@ -22,6 +23,8 @@ export function PatientDoctorAppointments() {
     const [appointments, setAppointments] = useState<DoctorAppointment[]>([]);
     const [loading, setLoading] = useState(true);
     const [paying, setPaying] = useState<string | null>(null);
+    const [receiptData, setReceiptData] = useState<any>(null);
+    const receiptRef = useRef<HTMLDivElement>(null);
 
     const fetchAppointments = async () => {
         if (!user?.id) return;
@@ -87,6 +90,18 @@ export function PatientDoctorAppointments() {
 
             toast.success('Payment successful! Appointment confirmed.');
             fetchAppointments();
+            
+            // Show receipt dialog
+            setReceiptData({
+                id: paymentResult.razorpay_payment_id || 'PAY_' + Date.now().toString().slice(-6),
+                orderId: order.id,
+                amount: 500,
+                date: new Date().toLocaleString(),
+                doctorName: appt.doctorName,
+                consultationType: appt.consultationType || 'Virtual Consultation',
+                status: 'Paid'
+            });
+            
         } catch (err: any) {
             if (err.message === 'Payment cancelled by user') {
                 toast.info('Payment cancelled');
@@ -169,6 +184,102 @@ export function PatientDoctorAppointments() {
 
                 </Tabs>
             )}
+
+            {/* Payment Receipt Dialog */}
+            <Dialog open={!!receiptData} onOpenChange={() => setReceiptData(null)}>
+                <DialogContent className="max-w-md bg-white">
+                    <DialogHeader>
+                        <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                            <CheckCircle2 className="w-6 h-6 text-green-600" />
+                        </div>
+                        <DialogTitle className="text-center text-xl font-bold">Payment Successful</DialogTitle>
+                        <DialogDescription className="text-center">
+                            Your payment has been processed successfully.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {receiptData && (
+                        <div className="mt-4" ref={receiptRef}>
+                            <div className="bg-slate-50 border border-slate-100 rounded-xl p-5 space-y-4">
+                                <div className="flex justify-between items-center border-b border-slate-200 pb-4">
+                                    <span className="text-slate-500">Amount Paid</span>
+                                    <span className="text-2xl font-bold text-slate-800">₹{receiptData.amount}</span>
+                                </div>
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Transaction ID</span>
+                                        <span className="font-medium text-slate-700">{receiptData.id}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Order ID</span>
+                                        <span className="font-medium text-slate-700">{receiptData.orderId}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Date & Time</span>
+                                        <span className="font-medium text-slate-700">{receiptData.date}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Doctor</span>
+                                        <span className="font-medium text-slate-700">Dr. {receiptData.doctorName}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Consultation</span>
+                                        <span className="font-medium text-slate-700">{receiptData.consultationType}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3 mt-6">
+                                <Button
+                                    variant="outline"
+                                    className="flex-1"
+                                    onClick={() => {
+                                        const printContent = document.createElement('div');
+                                        printContent.innerHTML = `
+                                            <div style="font-family: sans-serif; max-width: 400px; margin: 0 auto; padding: 20px;">
+                                                <h2 style="text-align: center; color: #0d9488;">PathoCare Receipt</h2>
+                                                <hr style="border-top: 1px dashed #ccc; margin: 20px 0;" />
+                                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                                    <span>Amount</span><strong>Rs. ${receiptData.amount}</strong>
+                                                </div>
+                                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                                    <span>Transaction ID</span><span>${receiptData.id}</span>
+                                                </div>
+                                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                                    <span>Order ID</span><span>${receiptData.orderId}</span>
+                                                </div>
+                                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                                    <span>Date</span><span>${receiptData.date}</span>
+                                                </div>
+                                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                                    <span>Doctor</span><span>Dr. ${receiptData.doctorName}</span>
+                                                </div>
+                                                <hr style="border-top: 1px dashed #ccc; margin: 20px 0;" />
+                                                <p style="text-align: center; font-size: 12px; color: #666;">Thank you for choosing PathoCare</p>
+                                            </div>
+                                        `;
+                                        const win = window.open('', '_blank');
+                                        if (win) {
+                                            win.document.write(printContent.innerHTML);
+                                            win.document.close();
+                                            win.print();
+                                        }
+                                    }}
+                                >
+                                    <Download className="w-4 h-4 mr-2" />
+                                    Download Receipt
+                                </Button>
+                                <Button
+                                    className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
+                                    onClick={() => setReceiptData(null)}
+                                >
+                                    Done
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

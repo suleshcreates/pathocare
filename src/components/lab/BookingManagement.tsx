@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import {
   Calendar, Search, User, Phone, Clock, ChevronRight,
   CheckCircle2, UserPlus, Beaker, FileText, MoreHorizontal,
-  Home, Building2, Loader2
+  Home, Building2, Loader2, ExternalLink, Send
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,6 +52,7 @@ export function BookingManagement() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [technicians, setTechnicians] = useState<any[]>([]); // New State
   const [selectedTechnicianId, setSelectedTechnicianId] = useState(''); // New State
+  const [reportPreview, setReportPreview] = useState<{ open: boolean; bookingId: string; downloadUrl: string; bookingInfo?: any } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const fetchBookings = async () => {
@@ -101,7 +102,23 @@ export function BookingManagement() {
       try {
         toast.loading('Generating report...', { id: 'generate' });
         await labService.startTesting(actionDialog.bookingId);
-        toast.success('Report generated and sent to patient!', { id: 'generate' });
+        toast.success('Report generated! Preview it below.', { id: 'generate' });
+        
+        // Fetch the download URL for preview
+        try {
+          const downloadUrl = await labService.getReportDownloadUrl(actionDialog.bookingId);
+          const booking = bookings.find((b: any) => (b.id || b.appointment_id) === actionDialog.bookingId);
+          setReportPreview({
+            open: true,
+            bookingId: actionDialog.bookingId,
+            downloadUrl,
+            bookingInfo: booking
+          });
+        } catch {
+          // Even if preview fails, report was generated successfully
+          toast.info('Report generated. Refresh to see it in Reports.', { id: 'generate' });
+        }
+        
         fetchBookings();
         setActionDialog({ open: false, action: '' });
       } catch (error: any) {
@@ -441,6 +458,92 @@ export function BookingManagement() {
               >
                 <CheckCircle2 className="w-4 h-4 mr-2" />
                 Confirm
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Report Preview Dialog */}
+      <Dialog open={!!reportPreview?.open} onOpenChange={() => setReportPreview(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-slate-800">
+              📋 Generated Report Preview
+            </DialogTitle>
+            <DialogDescription>
+              Review the report before notifying the patient. The report has been generated and saved.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Report Info */}
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-slate-500">Patient:</span>
+                  <p className="font-medium text-slate-800">{reportPreview?.bookingInfo?.patientName || 'Patient'}</p>
+                </div>
+                <div>
+                  <span className="text-slate-500">Test:</span>
+                  <p className="font-medium text-slate-800">{reportPreview?.bookingInfo?.testName || 'Test'}</p>
+                </div>
+                <div>
+                  <span className="text-slate-500">Booking ID:</span>
+                  <p className="font-mono text-xs text-slate-700">{reportPreview?.bookingId?.slice(0, 8)}...</p>
+                </div>
+                <div>
+                  <span className="text-slate-500">Status:</span>
+                  <Badge className="bg-emerald-100 text-emerald-700 mt-0.5">
+                    <CheckCircle2 className="w-3 h-3 mr-1" /> Report Ready
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            {/* PDF Preview */}
+            {reportPreview?.downloadUrl && (
+              <div className="border rounded-xl overflow-hidden" style={{ height: '400px' }}>
+                <iframe
+                  src={reportPreview.downloadUrl}
+                  className="w-full h-full"
+                  title="Report Preview"
+                />
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  if (reportPreview?.downloadUrl) {
+                    window.open(reportPreview.downloadUrl, '_blank');
+                  }
+                }}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Open PDF
+              </Button>
+              <Button
+                className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white"
+                onClick={async () => {
+                  if (reportPreview?.bookingId) {
+                    try {
+                      toast.loading('Notifying patient...', { id: 'notify' });
+                      await labService.updateBookingStatusAndNotify(reportPreview.bookingId, 'REPORT_READY');
+                      toast.success('Patient notified! Report sent to their portal.', { id: 'notify' });
+                      setReportPreview(null);
+                      fetchBookings();
+                    } catch (err: any) {
+                      toast.error(err.message || 'Failed to notify patient', { id: 'notify' });
+                    }
+                  }
+                }}
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Notify Patient
               </Button>
             </div>
           </div>

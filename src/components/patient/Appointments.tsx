@@ -2,13 +2,14 @@ import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import {
   Calendar, Clock, User, Phone, ChevronRight,
-  Download, Eye, Search, Home, Building2, CreditCard
+  Download, Eye, Search, Home, Building2, CreditCard, CheckCircle2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { StatusBadge } from '@/components/StatusBadge';
 import { BookingDetailsDialog } from './BookingDetailsDialog';
 import { bookingService } from '@/services/bookingService'; // Use service
@@ -36,6 +37,7 @@ export function Appointments() {
   const [detailsBooking, setDetailsBooking] = useState<Booking | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [payingId, setPayingId] = useState<string | null>(null);
+  const [receiptData, setReceiptData] = useState<any>(null);
 
   // Razorpay payment handler for lab bookings
   const handleLabPayment = async (booking: Booking) => {
@@ -76,6 +78,18 @@ export function Appointments() {
       // Refresh bookings
       const data = await bookingService.getPatientBookings(user.id);
       setBookings(data as Booking[]);
+      
+      // Show receipt dialog
+      setReceiptData({
+        id: paymentResult.razorpay_payment_id || 'PAY_' + Date.now().toString().slice(-6),
+        orderId: order.id,
+        amount: price,
+        date: new Date().toLocaleString(),
+        testName: booking.testName || 'Lab Test',
+        labName: booking.labName || 'Laboratory',
+        status: 'Paid'
+      });
+      
     } catch (err: any) {
       if (err.message === 'Payment cancelled by user') {
         toast.info('Payment cancelled');
@@ -354,6 +368,105 @@ export function Appointments() {
         open={!!detailsBooking}
         onClose={() => setDetailsBooking(null)}
       />
+
+      {/* Payment Receipt Dialog */}
+      <Dialog open={!!receiptData} onOpenChange={() => setReceiptData(null)}>
+        <DialogContent className="max-w-md bg-white">
+          <DialogHeader>
+            <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-6 h-6 text-green-600" />
+            </div>
+            <DialogTitle className="text-center text-xl font-bold">Payment Successful</DialogTitle>
+            <DialogDescription className="text-center">
+              Your payment has been processed successfully.
+            </DialogDescription>
+          </DialogHeader>
+
+          {receiptData && (
+            <div className="mt-4">
+              <div className="bg-slate-50 border border-slate-100 rounded-xl p-5 space-y-4">
+                <div className="flex justify-between items-center border-b border-slate-200 pb-4">
+                  <span className="text-slate-500">Amount Paid</span>
+                  <span className="text-2xl font-bold text-slate-800">₹{receiptData.amount}</span>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Transaction ID</span>
+                    <span className="font-medium text-slate-700">{receiptData.id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Order ID</span>
+                    <span className="font-medium text-slate-700">{receiptData.orderId}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Date & Time</span>
+                    <span className="font-medium text-slate-700">{receiptData.date}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Lab</span>
+                    <span className="font-medium text-slate-700">{receiptData.labName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Test</span>
+                    <span className="font-medium text-slate-700">{receiptData.testName}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    const printContent = document.createElement('div');
+                    printContent.innerHTML = `
+                      <div style="font-family: sans-serif; max-width: 400px; margin: 0 auto; padding: 20px;">
+                        <h2 style="text-align: center; color: #0d9488;">PathoCare Receipt</h2>
+                        <hr style="border-top: 1px dashed #ccc; margin: 20px 0;" />
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                          <span>Amount</span><strong>Rs. ${receiptData.amount}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                          <span>Transaction ID</span><span>${receiptData.id}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                          <span>Order ID</span><span>${receiptData.orderId}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                          <span>Date</span><span>${receiptData.date}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                          <span>Lab</span><span>${receiptData.labName}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                          <span>Test</span><span>${receiptData.testName}</span>
+                        </div>
+                        <hr style="border-top: 1px dashed #ccc; margin: 20px 0;" />
+                        <p style="text-align: center; font-size: 12px; color: #666;">Thank you for choosing PathoCare</p>
+                      </div>
+                    `;
+                    const win = window.open('', '_blank');
+                    if (win) {
+                      win.document.write(printContent.innerHTML);
+                      win.document.close();
+                      win.print();
+                    }
+                  }}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Receipt
+                </Button>
+                <Button
+                  className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
+                  onClick={() => setReceiptData(null)}
+                >
+                  Done
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
