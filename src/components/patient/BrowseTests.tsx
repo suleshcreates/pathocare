@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import {
-  Search, FlaskConical, Clock, ChevronRight,
-  Beaker, Microscope, Stethoscope, Package, Star, Building2, Calendar
+  Search, FlaskConical,
+  Beaker, Microscope, Stethoscope, Package, Calendar
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -125,57 +125,50 @@ export function BrowseTests() {
           return (
             <div
               key={test.id}
-              className="test-card bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
+              className="test-card bg-white rounded-[1.25rem] border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
             >
-              <div className="flex p-4 gap-4 flex-1">
-                {/* Left: Image Thumbnail */}
-                <div className="w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100">
-                  <img
-                    src={(test as any).image || (test as any).image_url || getCategoryImage(test.category)}
-                    alt={test.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = getCategoryImage(test.category);
-                    }}
-                  />
-                </div>
-
-                {/* Right: Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-slate-800 text-sm sm:text-base leading-snug truncate">
-                    {test.name}
-                  </h3>
-
-                  {/* Lab + Rating */}
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <Building2 className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                    <span className="text-xs text-slate-500 truncate">{(test as any).labName || 'Verified Lab'}</span>
-                    <span className="text-slate-300">·</span>
-                    <Star className="w-3 h-3 fill-amber-400 text-amber-400 flex-shrink-0" />
-                    <span className="text-xs font-medium text-slate-600">4.8</span>
-                  </div>
-
-                  {/* Time + Price row */}
-                  <div className="flex items-center gap-3 mt-2">
-                    <div className="flex items-center gap-1 text-xs text-slate-500">
-                      <Clock className="w-3 h-3" />
-                      <span>{test.turnaroundTime}</span>
-                    </div>
-                    <span className="text-sm sm:text-base font-bold text-teal-600">₹{test.price}</span>
-                  </div>
-                </div>
+              {/* Top: Image Thumbnail */}
+              <div className="w-full aspect-[16/9] sm:aspect-[2/1] bg-slate-100 relative group overflow-hidden border-b border-slate-100">
+                <img
+                  src={(test as any).image || (test as any).image_url || getCategoryImage(test.category)}
+                  alt={test.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = getCategoryImage(test.category);
+                  }}
+                />
               </div>
 
-              {/* Book Now – full width on mobile */}
-              <div className="px-3 sm:px-4 pb-3 sm:pb-4">
+              {/* Body */}
+              <div className="p-4 sm:p-5 flex flex-col flex-1">
+                <h3 className="font-bold text-slate-800 text-lg sm:text-xl leading-snug">
+                  {test.name}
+                </h3>
+                
+                <p className="text-sm text-slate-500 mt-1 line-clamp-2">
+                  {(test.description || `${test.name} offered by ${(test as any).labName || 'Verified Lab'} online lab test`)}
+                </p>
+
+                {/* Flexible spacer */}
+                <div className="flex-1" />
+
+                {/* Time + Price row */}
+                <div className="flex items-baseline justify-between mt-4 mb-4">
+                  <span className="text-2xl font-black text-slate-800 tracking-tight">₹{test.price}</span>
+                  <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
+                    <span>{(test as any).labName || 'Verified Lab'}</span>
+                    <span>{test.turnaroundTime}</span>
+                  </div>
+                </div>
+
+                {/* Book Now Button */}
                 <Button
-                  className="w-full sm:w-auto bg-teal-500 hover:bg-teal-600 text-white rounded-xl h-10 text-sm font-semibold shadow-sm shadow-teal-500/20"
+                  className="w-full bg-teal-500 hover:bg-teal-600 text-white rounded-xl h-11 text-[15px] font-bold shadow-md shadow-teal-500/20"
                   onClick={() => {
                     window.location.href = `/dashboard?testId=${test.id}&labId=${test.labId}#book`;
                   }}
                 >
                   Book Now
-                  <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </div>

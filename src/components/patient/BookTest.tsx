@@ -230,15 +230,53 @@ export function BookTest() {
             {labTests.length === 0 ? (
               <p className="text-slate-500">Loading tests or no tests available...</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {labTests.map(t => (
                   <div
                     key={t.id}
-                    onClick={() => handleTestSelect(t.id)}
-                    className="cursor-pointer p-4 bg-white rounded-lg border border-teal-100 hover:border-teal-500 hover:shadow-md transition-all"
+                    className="test-card bg-white rounded-[1.25rem] border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
                   >
-                    <h4 className="font-semibold text-slate-800">{t.name}</h4>
-                    <p className="text-sm text-slate-500 mt-1">₹{t.price}</p>
+                    {/* Top: Image Thumbnail */}
+                    <div className="w-full aspect-[16/9] sm:aspect-[2/1] bg-slate-100 relative group overflow-hidden border-b border-slate-100">
+                      <img
+                        src={(t as any).image || (t as any).image_url || '/category-blood.jpg'}
+                        alt={t.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/category-blood.jpg';
+                        }}
+                      />
+                    </div>
+
+                    {/* Body */}
+                    <div className="p-4 sm:p-5 flex flex-col flex-1">
+                      <h3 className="font-bold text-slate-800 text-lg sm:text-xl leading-snug">
+                        {t.name}
+                      </h3>
+                      
+                      <p className="text-sm text-slate-500 mt-1 line-clamp-2">
+                        {t.description || `${t.name} at this lab`}
+                      </p>
+
+                      {/* Flexible spacer */}
+                      <div className="flex-1" />
+
+                      {/* Time + Price row */}
+                      <div className="flex items-baseline justify-between mt-4 mb-4">
+                        <span className="text-2xl font-black text-slate-800 tracking-tight">₹{t.price}</span>
+                        <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
+                          <span>{t.turnaroundTime}</span>
+                        </div>
+                      </div>
+
+                      {/* Select Button */}
+                      <Button
+                        className="w-full bg-teal-500 hover:bg-teal-600 text-white rounded-xl h-11 text-[15px] font-bold shadow-md shadow-teal-500/20"
+                        onClick={() => handleTestSelect(t.id)}
+                      >
+                        Select Test
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

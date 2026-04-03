@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import {
   Users, Building2, Calendar,
-  DollarSign, Activity, CheckCircle2,
+  DollarSign, CheckCircle2,
   Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -62,36 +62,33 @@ export function AdminDashboard() {
   }
 
   return (
-    <div ref={containerRef} className="space-y-6">
+    <div ref={containerRef} className="space-y-6 stagger-children">
       {/* Welcome Section */}
-      <div className="animate-item bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 rounded-3xl p-6 lg:p-8 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-        </div>
-
+      <div className="bg-slate-900 rounded-3xl p-6 lg:p-8 text-white relative flex flex-col justify-center border border-slate-800 shadow-sleek">
         <div className="relative z-10">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <p className="text-amber-100 text-sm font-medium">Admin Control Panel</p>
-              <h1 className="text-2xl lg:text-3xl font-bold mt-1">System Overview</h1>
-              <p className="text-amber-100 mt-2">
+              <p className="text-slate-400 text-sm font-medium uppercase tracking-wide">Admin Control Panel</p>
+              <h1 className="text-2xl lg:text-3xl font-bold mt-1 tracking-tight">System Overview</h1>
+              <p className="text-slate-300 mt-2">
                 Monitor platform performance, manage users, and oversee all operations.
               </p>
             </div>
             <div className="flex gap-3">
               <Button
-                variant="secondary"
-                className="bg-white/20 text-white border-0 hover:bg-white/30 backdrop-blur-sm"
+                variant="outline"
+                className="bg-transparent border-slate-700 text-slate-200 hover:bg-slate-800 hover:text-white backdrop-blur-sm transition-colors"
+                onClick={() => window.location.hash = '#users'}
               >
                 <Users className="w-4 h-4 mr-2" />
                 Manage Users
               </Button>
               <Button
-                className="bg-white text-amber-600 hover:bg-amber-50"
+                className="bg-white text-slate-900 hover:bg-slate-200 transition-colors"
+                onClick={() => window.location.hash = '#labs'}
               >
-                <Activity className="w-4 h-4 mr-2" />
-                View Analytics
+                <Building2 className="w-4 h-4 mr-2" />
+                Manage Labs
               </Button>
             </div>
           </div>
@@ -100,7 +97,7 @@ export function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="animate-item">
+        <div>
           <StatCard
             title="Total Users"
             value={(stats?.totalUsers || 0).toLocaleString()}
@@ -109,7 +106,7 @@ export function AdminDashboard() {
             color="amber"
           />
         </div>
-        <div className="animate-item">
+        <div>
           <StatCard
             title="Total Labs"
             value={stats?.totalLabs || 0}
@@ -118,7 +115,7 @@ export function AdminDashboard() {
             color="indigo"
           />
         </div>
-        <div className="animate-item">
+        <div>
           <StatCard
             title="Total Bookings"
             value={(stats?.totalBookings || 0).toLocaleString()}
@@ -127,7 +124,7 @@ export function AdminDashboard() {
             color="teal"
           />
         </div>
-        <div className="animate-item">
+        <div>
           <StatCard
             title="Revenue"
             value={formatCurrency(stats?.revenue || 0)}
@@ -141,36 +138,34 @@ export function AdminDashboard() {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Pending Approvals */}
-        <div className="animate-item">
-          <Card className="h-full">
-            <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <Card className="h-full card-sleek border-0">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 bg-white rounded-t-2xl">
               <div>
                 <CardTitle className="text-lg">Pending Approvals</CardTitle>
                 <p className="text-sm text-slate-500 mt-1">Labs awaiting approval</p>
               </div>
               {pendingLabs.length > 0 && (
-                <Badge className="bg-rose-100 text-rose-700">
+                <Badge className="bg-rose-50 border border-rose-200/50 text-rose-700">
                   {pendingLabs.length} pending
                 </Badge>
               )}
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="space-y-3">
                 {pendingLabs.map((lab) => (
                   <div
                     key={lab.id}
-                    className="p-4 bg-slate-50 rounded-xl hover:bg-amber-50 transition-colors"
+                    className="p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-slate-100"
                   >
                     <div className="flex items-start justify-between">
                       <div>
                         <h4 className="font-medium text-slate-800">{lab.name}</h4>
                         <p className="text-sm text-slate-500">{lab.address}</p>
-                        {/* Accreditation badge removed as mock data was rich, real data might lack this initially */}
                       </div>
                     </div>
                     <div className="flex gap-2 mt-3">
-                      {/* Simple approve button for quick action, or link to LabApproval page */}
-                      <Button size="sm" className="flex-1 bg-emerald-500 hover:bg-emerald-600" onClick={() => adminService.approveLab(lab.id).then(() => setPendingLabs(prev => prev.filter(l => l.id !== lab.id)))}>
+                      <Button size="sm" className="flex-1 bg-slate-800 hover:bg-slate-900 text-white" onClick={() => adminService.approveLab(lab.id).then(() => setPendingLabs(prev => prev.filter(l => l.id !== lab.id)))}>
                         <CheckCircle2 className="w-4 h-4 mr-1" />
                         Approve
                       </Button>
@@ -180,10 +175,10 @@ export function AdminDashboard() {
 
                 {pendingLabs.length === 0 && (
                   <div className="text-center py-8">
-                    <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <div className="w-12 h-12 bg-emerald-50 border border-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
                       <CheckCircle2 className="w-6 h-6 text-emerald-600" />
                     </div>
-                    <p className="text-slate-500">All labs approved!</p>
+                    <p className="text-slate-500 font-medium">All labs approved!</p>
                   </div>
                 )}
               </div>
@@ -191,31 +186,23 @@ export function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Recent Bookings (Placeholder / Static for now as we focused on Labs) */}
-        <div className="animate-item lg:col-span-2">
-          {/* ... Keeping existing Recent Bookings logic, or we can hide it if no data ... 
-              For now, let's keep it but it might be empty if we didn't fetch it. 
-              Ideally we should fetch it. Let's comment out or render empty state if not fetched.
-          */}
-          <Card className="h-full">
-            <CardHeader className="flex flex-row items-center justify-between">
+        {/* Recent Bookings */}
+        <div className="lg:col-span-2">
+          <Card className="h-full card-sleek border-0">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 bg-white rounded-t-2xl">
               <div>
-                <CardTitle className="text-lg">Recent Bookings</CardTitle>
-                <p className="text-sm text-slate-500 mt-1">Latest platform activity</p>
+                <CardTitle className="text-lg">Platform Activity</CardTitle>
+                <p className="text-sm text-slate-500 mt-1">Recent system-wide events</p>
               </div>
-              {/* ... */}
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12 text-slate-500">
-                Feature coming soon (Live Feed)
+              <div className="text-center py-12 text-slate-500 uppercase tracking-wide text-sm font-medium">
+                Live Feed Module Initializing...
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
-
-      {/* System Health Section Preserved as Generic Mock for Visuals */}
-      {/* ... */}
     </div>
   );
 }

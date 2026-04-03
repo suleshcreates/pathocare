@@ -76,29 +76,24 @@ export function PatientDashboard() {
 
 
   return (
-    <div ref={containerRef} className="space-y-4 sm:space-y-6">
+    <div ref={containerRef} className="space-y-4 sm:space-y-6 stagger-children">
       {/* Welcome Section */}
-      <div className="animate-item bg-gradient-to-br from-teal-500 via-teal-600 to-indigo-600 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 text-white relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-        </div>
+      <div className="bg-slate-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-white relative flex flex-col justify-center border border-slate-800 shadow-sleek">
 
-        <div className="relative z-10">
+        <div className="relative z-10 w-full">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <p className="text-teal-100 text-xs sm:text-sm font-medium">{getGreeting()}</p>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mt-0.5 sm:mt-1">{user?.name || 'Patient'}</h1>
-              <p className="text-teal-100 mt-1 sm:mt-2 max-w-md text-sm sm:text-base hidden sm:block">
-                Welcome back to your health dashboard. Here&apos;s what&apos;s happening with your health journey.
+              <p className="text-slate-400 text-xs sm:text-sm font-medium tracking-wide uppercase">{getGreeting()}</p>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold mt-1 tracking-tight">{user?.name || 'Patient'}</h1>
+              <p className="text-slate-300 mt-2 max-w-md text-sm sm:text-base hidden sm:block">
+                Welcome to your health portal. Select an action below to manage your appointments and reports.
               </p>
             </div>
             <div className="flex gap-2 sm:gap-3">
               <Button
                 size="sm"
-                variant="secondary"
-                className="bg-white/20 text-white border-0 hover:bg-white/30 backdrop-blur-sm text-xs sm:text-sm"
+                variant="outline"
+                className="bg-transparent border-slate-700 text-slate-200 hover:bg-slate-800 hover:text-white backdrop-blur-sm text-xs sm:text-sm transition-colors"
                 onClick={() => navigate('/dashboard#tests')}
               >
                 <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
@@ -106,11 +101,11 @@ export function PatientDashboard() {
               </Button>
               <Button
                 size="sm"
-                className="bg-white text-teal-600 hover:bg-teal-50 text-xs sm:text-sm"
+                className="bg-white text-slate-900 hover:bg-slate-200 text-xs sm:text-sm transition-colors"
                 onClick={() => navigate('/dashboard#reports')}
               >
                 <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Reports
+                View Reports
               </Button>
             </div>
           </div>
@@ -183,8 +178,8 @@ export function PatientDashboard() {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Upcoming Appointment */}
-        <div className="animate-item lg:col-span-2">
-          <Card className="h-full">
+        <div className="lg:col-span-2">
+          <Card className="h-full card-sleek border-0">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-lg">Upcoming Appointment</CardTitle>
@@ -282,8 +277,8 @@ export function PatientDashboard() {
         </div>
 
         {/* Recent Reports */}
-        <div className="animate-item">
-          <Card className="h-full">
+        <div>
+          <Card className="h-full card-sleek border-0">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-lg">Recent Reports</CardTitle>
@@ -338,18 +333,18 @@ export function PatientDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="animate-item">
+      <div>
         <h2 className="text-lg font-semibold text-slate-800 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
           {[
-            { icon: FlaskConical, label: 'Book Test', color: 'bg-teal-100 text-teal-600' },
-            { icon: Calendar, label: 'Doctor Appts', color: 'bg-indigo-100 text-indigo-600' },
-            { icon: FileText, label: 'Reports', color: 'bg-emerald-100 text-emerald-600' },
-            { icon: TrendingUp, label: 'Track', color: 'bg-amber-100 text-amber-600' },
+            { icon: FlaskConical, label: 'Book Test', color: 'bg-teal-50 text-teal-600 border-teal-100' },
+            { icon: Calendar, label: 'Doctor Appts', color: 'bg-indigo-50 text-indigo-600 border-indigo-100' },
+            { icon: FileText, label: 'Reports', color: 'bg-slate-50 text-slate-600 border-slate-200' },
+            { icon: TrendingUp, label: 'Track', color: 'bg-slate-50 text-slate-600 border-slate-200' },
           ].map((action) => (
             <button
               key={action.label}
-              className="group p-3 sm:p-4 bg-white rounded-xl sm:rounded-2xl border border-slate-200 hover:border-teal-300 hover:shadow-lg transition-all"
+              className="card-sleek flex flex-col items-center p-4 rounded-xl sm:rounded-2xl border transition-all"
               onClick={() => {
                 if (action.label === 'Book Test') navigate('/dashboard#tests');
                 if (action.label === 'Reports') navigate('/dashboard#reports');
@@ -357,7 +352,7 @@ export function PatientDashboard() {
                 if (action.label === 'Doctor Appts') navigate('/dashboard#doctor-appointments');
               }}
             >
-              <div className={cn('w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3 transition-transform group-hover:scale-110', action.color)}>
+              <div className={cn('w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-3 transition-colors border', action.color)}>
                 <action.icon className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <span className="font-medium text-slate-700 text-xs sm:text-sm">{action.label}</span>

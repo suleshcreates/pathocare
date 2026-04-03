@@ -70,8 +70,7 @@ export function StatCard({
     <div
       onClick={onClick}
       className={cn(
-        'bg-white rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-slate-200 transition-all duration-300',
-        'hover:shadow-xl hover:-translate-y-1',
+        'card-sleek rounded-xl sm:rounded-2xl p-3 sm:p-6',
         onClick && 'cursor-pointer',
         className
       )}

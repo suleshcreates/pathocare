@@ -80,27 +80,27 @@ const roleColors: Record<UserRole, { bg: string; text: string; active: string }>
   patient: {
     bg: 'bg-teal-50',
     text: 'text-teal-700',
-    active: 'bg-teal-500 text-white shadow-lg shadow-teal-500/30'
+    active: 'bg-teal-600 text-white shadow-sleek'
   },
   lab: {
     bg: 'bg-indigo-50',
     text: 'text-indigo-700',
-    active: 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
+    active: 'bg-indigo-600 text-white shadow-sleek'
   },
   admin: {
-    bg: 'bg-amber-50',
-    text: 'text-amber-700',
-    active: 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+    bg: 'bg-slate-100',
+    text: 'text-slate-700',
+    active: 'bg-slate-800 text-white shadow-sleek'
   },
   doctor: {
     bg: 'bg-sky-50',
     text: 'text-sky-700',
-    active: 'bg-sky-500 text-white shadow-lg shadow-sky-500/30'
+    active: 'bg-sky-600 text-white shadow-sleek'
   },
   technician: {
-    bg: 'bg-orange-50',
-    text: 'text-orange-700',
-    active: 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'
+    bg: 'bg-rose-50',
+    text: 'text-rose-700',
+    active: 'bg-rose-600 text-white shadow-sleek'
   }
 };
 
